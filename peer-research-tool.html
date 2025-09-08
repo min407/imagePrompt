@@ -1,0 +1,3194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>同行调研工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .main-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+            font-weight: 600;
+        }
+        .platform-chip {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border-radius: 25px;
+            background: #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .platform-category {
+            padding: 0.3rem;
+            border-radius: 6px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        
+        .custom-platform-chip {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            margin: 0.15rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .custom-platform-chip .remove-btn {
+            margin-left: 0.3rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .custom-platform-chip .remove-btn:hover {
+            opacity: 1;
+        }
+        
+        /* 调整平台芯片大小 */
+        .platform-chip {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            margin: 0.15rem;
+            border-radius: 20px;
+            background: #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-size: 0.8rem;
+        }
+        
+        /* 调整分类标题大小 */
+        .platform-category small {
+            font-size: 0.75rem;
+        }
+        
+        /* 调整下拉框字体大小 */
+        #research_platforms {
+            font-size: 0.85rem;
+            min-height: 200px;
+        }
+        
+        #research_platforms option {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+        }
+        
+        #research_platforms optgroup {
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .platform-chip.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #5a67d8;
+        }
+        .path-step {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border-radius: 20px;
+            background: #e3f2fd;
+            color: #1976d2;
+            font-size: 0.9rem;
+        }
+        .path-arrow {
+            margin: 0 0.5rem;
+            color: #666;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+        .analysis-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+        .navbar {
+            background: white !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .nav-link {
+            color: #495057 !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            border-radius: 25px;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+        }
+        .export-btn {
+            margin: 0.25rem;
+            border-radius: 20px;
+        }
+        .filter-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            border-radius: 15px;
+            background: #e9ecef;
+            color: #495057;
+            font-size: 0.8rem;
+        }
+        .tag.traffic { background: #e3f2fd; color: #1976d2; }
+        .tag.product { background: #f3e5f5; color: #7b1fa2; }
+        .tag.operation { background: #e8f5e8; color: #388e3c; }
+          
+        /* 优化流量形式和交付形式的布局 */
+        .form-section .row .col-md-6 .form-check {
+            margin-bottom: 0.75rem;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            border: none;
+            transition: none;
+            display: flex;
+            align-items: center;
+            min-height: auto;
+        }
+        .form-section .row .col-md-6 .form-check:hover {
+            background: transparent;
+            border: none;
+        }
+        .form-section .row .col-md-6 .form-check-input {
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+        }
+        .form-section .row .col-md-6 .form-check-label {
+            margin: 0;
+            line-height: 1.4;
+            flex-grow: 1;
+            word-wrap: break-word;
+            font-size: 15px;
+            color: #495057;
+        }
+        .form-section .row .col-md-6 .form-check-input:checked + .form-check-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+        .form-section .row .col-md-6 .form-check-input:checked ~ .form-check {
+            background: transparent;
+            border: none;
+        }
+        
+        /* 移除默认的form-check间距 */
+        .form-section .form-check {
+            margin-bottom: 0;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e9ecef;
+            z-index: -1;
+        }
+        .step:last-child::after {
+            display: none;
+        }
+        .step.active::after {
+            background: #667eea;
+        }
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .step.active .step-circle {
+            background: #667eea;
+            color: white;
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        
+        /* 统一表单控件样式 */
+        .form-control, .form-select {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            padding: 0.5rem 0.75rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        /* 统一表单间距 */
+        .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        /* 优化卡片样式 */
+        .card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-body {
+            padding: 1.25rem;
+        }
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* 章节标题样式 */
+        .section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .section-subtitle {
+            font-size: 12px;
+            color: #6c757d;
+            margin: 0;
+            font-weight: 400;
+        }
+        
+        /* 统一所有表单标签为加粗 */
+        .form-label {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            font-size: 16px;
+        }
+        
+        /* 二级标题样式 - 增大字体并添加序号样式 */
+        .form-label.section-subtitle {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a365d;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-label.section-subtitle::before {
+            content: attr(data-number);
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        /* 说明文字最小字号 */
+        .text-muted {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .form-text {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        /* 卡片标题加粗 */
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* 手机端优化 */
+        @media (max-width: 768px) {
+            /* 整体布局优化 */
+            .container-fluid {
+                padding: 1rem;
+            }
+            
+            /* 标题响应式 - 保持与步骤指示器一致 */
+            .section-title {
+                font-size: 16px;
+            }
+            
+            .form-label {
+                font-size: 16px;
+            }
+            
+            .card-title {
+                font-size: 16px;
+            }
+            
+            /* 表单控件优化 */
+            .form-control, .form-select {
+                font-size: 16px; /* 防止iOS缩放 */
+                padding: 0.75rem;
+            }
+            
+            /* 多选下拉框移动端优化 */
+            select[multiple] {
+                font-size: 16px; /* 手机端更大字体 */
+            }
+            
+            /* 复选框增大点击区域 */
+            .form-check-input {
+                width: 20px;
+                height: 20px;
+                margin-right: 0.75rem;
+            }
+            
+            .product-type-selector .form-check-label,
+            .monetization-selector .form-check-label,
+            .form-section .row .col-md-6 .form-check-label {
+                font-size: 16px; /* 手机端更大字体 */
+                line-height: 1.5;
+                padding-top: 2px;
+            }
+            
+            /* 卡片优化 */
+            .card {
+                margin-bottom: 1rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            /* 按钮优化 */
+            .btn {
+                font-size: 16px;
+                padding: 0.75rem 1rem;
+                touch-action: manipulation; /* 优化触摸 */
+            }
+            
+            /* 步骤指示器优化 */
+            .step-indicator {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .step {
+                text-align: center;
+            }
+            
+            .step::after {
+                display: none; /* 隐藏连接线 */
+            }
+            
+            /* 平台选择器优化 */
+            .platform-selector {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .platform-chip {
+                padding: 0.75rem 0.5rem;
+                font-size: 14px;
+                text-align: center;
+            }
+            
+            /* 导航栏优化 */
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+            
+            .nav-link {
+                font-size: 14px;
+                padding: 0.5rem 0.75rem;
+                margin: 0.25rem;
+            }
+            
+            /* 模态框优化 */
+            .modal-dialog {
+                margin: 1rem;
+            }
+            
+            .modal-content {
+                border-radius: 10px;
+            }
+            
+            /* 表格优化 */
+            .table-responsive {
+                font-size: 14px;
+            }
+            
+            .btn-sm {
+                padding: 0.5rem 0.75rem;
+                font-size: 14px;
+            }
+        }
+        
+        /* 超小屏幕进一步优化 */
+        @media (max-width: 480px) {
+            .container-fluid {
+                padding: 0.5rem;
+            }
+            
+            .section-header {
+                margin-bottom: 1.5rem;
+                padding-bottom: 0.75rem;
+            }
+            
+            .product-type-selector,
+            .monetization-selector {
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+            
+            .platform-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">同行调研工具</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="#" data-tab="form">添加调研</a>
+                <a class="nav-link" href="#" data-tab="list">调研列表</a>
+                <a class="nav-link" href="#" data-tab="analysis">汇总分析</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <!-- 表单页面 -->
+        <div id="form-page" class="tab-content">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">添加同行调研</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="research-form">
+                                <!-- 步骤指示器 -->
+                                <div class="step-indicator">
+                                    <div class="step active" data-step="1">
+                                        <div class="step-circle">1</div>
+                                        <div>基础信息</div>
+                                    </div>
+                                    <div class="step" data-step="2">
+                                        <div class="step-circle">2</div>
+                                        <div>流量分析</div>
+                                    </div>
+                                    <div class="step" data-step="3">
+                                        <div class="step-circle">3</div>
+                                        <div>产品分析</div>
+                                    </div>
+                                    <div class="step" data-step="4">
+                                        <div class="step-circle">4</div>
+                                        <div>运营分析</div>
+                                    </div>
+                                </div>
+
+                                <!-- 第一步：基础信息 -->
+                                <div class="form-section active" data-section="1">
+                                    <div class="section-header">
+                                        <h4 class="section-title">· 基础信息</h4>
+                                        <p class="section-subtitle">记录同行的基本情况和特征</p>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">调研日期</label>
+                                                <input type="date" class="form-control" id="research_date" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">同行昵称/账号</label>
+                                                <input type="text" class="form-control" id="peer_name" placeholder="给这个同行起个名字">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="1">同行基本信息</label>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="2">调研平台 <span class="text-muted">(可多选)</span></label>
+                                        <select class="form-select" id="research_platforms" multiple="multiple" size="8">
+                                            <optgroup label="📱 主要内容平台">
+                                                <option value="小红书">📱 小红书</option>
+                                                <option value="抖音">🎵 抖音</option>
+                                                <option value="知乎">📚 知乎</option>
+                                                <option value="B站">📺 B站</option>
+                                                <option value="微博">🔄 微博</option>
+                                                <option value="快手">⚡ 快手</option>
+                                            </optgroup>
+                                            <optgroup label="💬 私域平台">
+                                                <option value="微信">💬 微信</option>
+                                                <option value="公众号">📖 公众号</option>
+                                                <option value="视频号">📹 视频号</option>
+                                                <option value="企业微信">🏢 企业微信</option>
+                                            </optgroup>
+                                            <optgroup label="👥 社群平台">
+                                                <option value="活动行">🎫 活力行</option>
+                                                <option value="取伙">🤝 取伙</option>
+                                                <option value="知识星球">🌟 知识星球</option>
+                                                <option value="小打卡">📅 小打卡</option>
+                                                <option value="小宇宙">🎧 小宇宙</option>
+                                                <option value="即刻">⚡ 即刻</option>
+                                            </optgroup>
+                                            <optgroup label="🛒 电商平台">
+                                                <option value="淘宝">🛒 淘宝</option>
+                                                <option value="闲鱼">🐟 闲鱼</option>
+                                                <option value="京东">🛍️ 京东</option>
+                                                <option value="拼多多">🔥 拼多多</option>
+                                            </optgroup>
+                                        </select>
+                                        <div class="form-text text-muted">
+                                            💡 按住 Ctrl/Cmd 键可多选，或直接点击选择
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="3">一句话描述这个同行</label>
+                                        <textarea class="form-control" id="peer_description" rows="2" placeholder="这个同行是做什么的？有什么特点？"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="4">主要客户群类型</label>
+                                        <select class="form-select" id="customer_type">
+                                            <option value="">请选择</option>
+                                            <option value="To C">👤 To C (面向个人消费者)</option>
+                                            <option value="To B">🏢 To B (面向企业客户)</option>
+                                            <option value="两者都有">👥 两者都有</option>
+                                            <option value="看不出来">❓ 看不出来</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="5">运营主体</label>
+                                        <select class="form-select" id="operation_entity">
+                                            <option value="">请选择</option>
+                                            <option value="个人">👤 个人运营</option>
+                                            <option value="小团队">👥 小团队 (2-5人)</option>
+                                            <option value="中型团队">🏢 中型团队 (6-20人)</option>
+                                            <option value="大团队">🏢 大团队 (20人以上)</option>
+                                            <option value="公司">🏢 公司化运营</option>
+                                            <option value="看不出来">❓ 看不出来</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="6">最初是怎么吸引到你的？</label>
+                                        <textarea class="form-control" id="attraction_point" rows="2" placeholder="用了什么引流产品？说了什么话术？"></textarea>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label section-subtitle" data-number="7">所加的联系方式</label>
+                                                <select class="form-select" id="contact_method">
+                                                    <option value="">请选择</option>
+                                                    <option value="微信">💬 微信</option>
+                                                    <option value="QQ">🐧 QQ</option>
+                                                    <option value="手机号">📱 手机号</option>
+                                                    <option value="闲鱼">🐟 闲鱼</option>
+                                                    <option value="淘宝">🛒 淘宝</option>
+                                                    <option value="小红书">📱 小红书</option>
+                                                    <option value="抖音">🎵 抖音</option>
+                                                    <option value="知乎">📚 知乎</option>
+                                                    <option value="其他">📌 其他</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label section-subtitle" data-number="8">是否继续下一步</label>
+                                                <select class="form-select" id="contact_added">
+                                                    <option value="">请选择</option>
+                                                    <option value="已加上">✅ 已加上</option>
+                                                    <option value="未继续">❌ 未继续</option>
+                                                    <option value="待验证">⏳ 待验证</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 第二步：流量分析 -->
+                                <div class="form-section" data-section="2">
+                                    <div class="section-header">
+                                        <h4 class="section-title">· 流量分析</h4>
+                                        <p class="section-subtitle">分析同行的流量获取和运营策略</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">流量阵地 <span class="text-muted">(可多选)</span></label>
+                                        <div class="platform-selector">
+                                            <!-- 主要内容平台 -->
+                                            <div class="platform-category">
+                                                <small class="text-muted d-block mb-2">📱 主要内容平台</small>
+                                                <div class="platform-chip" data-platform="小红书">📱 小红书</div>
+                                                <div class="platform-chip" data-platform="抖音">🎵 抖音</div>
+                                                <div class="platform-chip" data-platform="知乎">📚 知乎</div>
+                                                <div class="platform-chip" data-platform="B站">📺 B站</div>
+                                                <div class="platform-chip" data-platform="微博">🔄 微博</div>
+                                                <div class="platform-chip" data-platform="快手">⚡ 快手</div>
+                                            </div>
+                                            
+                                            <!-- 私域平台 -->
+                                            <div class="platform-category mt-3">
+                                                <small class="text-muted d-block mb-2">💬 私域平台</small>
+                                                <div class="platform-chip" data-platform="微信">💬 微信</div>
+                                                <div class="platform-chip" data-platform="公众号">📖 公众号</div>
+                                                <div class="platform-chip" data-platform="视频号">📹 视频号</div>
+                                                <div class="platform-chip" data-platform="企业微信">🏢 企业微信</div>
+                                            </div>
+                                            
+                                            <!-- 社群平台 -->
+                                            <div class="platform-category mt-3">
+                                                <small class="text-muted d-block mb-2">👥 社群平台</small>
+                                                <div class="platform-chip" data-platform="活动行">🎫 活力行</div>
+                                                <div class="platform-chip" data-platform="取伙">🤝 取伙</div>
+                                                <div class="platform-chip" data-platform="知识星球">🌟 知识星球</div>
+                                                <div class="platform-chip" data-platform="小打卡">📅 小打卡</div>
+                                                <div class="platform-chip" data-platform="小宇宙">🎧 小宇宙</div>
+                                                <div class="platform-chip" data-platform="即刻">⚡ 即刻</div>
+                                            </div>
+                                            
+                                            <!-- 电商平台 -->
+                                            <div class="platform-category mt-3">
+                                                <small class="text-muted d-block mb-2">🛒 电商平台</small>
+                                                <div class="platform-chip" data-platform="淘宝">🛒 淘宝</div>
+                                                <div class="platform-chip" data-platform="闲鱼">🐟 闲鱼</div>
+                                                <div class="platform-chip" data-platform="京东">🛍️ 京东</div>
+                                                <div class="platform-chip" data-platform="拼多多">🔥 拼多多</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="9">流量路径类型</label>
+                                        <select class="form-select" id="traffic_path_type">
+                                            <option value="">请选择路径类型</option>
+                                            <option value="内容种草型">📝 内容种草型 (内容→互动→咨询→转化)</option>
+                                            <option value="直播引流型">📹 直播引流型 (直播→限时→立即成交)</option>
+                                            <option value="搜索优化型">🔍 搜索优化型 (搜索→咨询→1v1转化)</option>
+                                            <option value="社群运营型">👥 社群运营型 (社群→互动→私域→转化)</option>
+                                            <option value="工具引流型">🛠️ 工具引流型 (工具→体验→付费→升级)</option>
+                                            <option value="电商引流型">🛒 电商引流型 (商品引流→私域沉淀→交付转化→升单复购)</option>
+                                            <option value="纯电商型">🛍️ 纯电商型 (商品展示→咨询成交→平台交付→完成)</option>
+                                        </select>
+                                        <div class="form-text text-muted">
+                                            💡 说明：电商引流型适合虚拟商品，通过低价产品引流到私域，后续提供训练营、陪跑等服务；纯电商型适合实物商品，在平台内完成整个交易流程
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="10">流量路径</label>
+                                        <div class="traffic-path-display">
+                                            <div class="path-preview p-3 bg-light rounded mb-3">
+                                                <small class="text-muted">自动生成的流量路径：</small>
+                                                <div class="generated-path" id="generated_path">
+                                                    请先选择调研平台
+                                                </div>
+                                            </div>
+                                            <div class="form-text text-muted">
+                                                💡 说明：根据您选择调研平台的顺序自动生成流量路径。例如：先选择小红书，再选择微信，路径会显示为"小红书→微信"
+                                            </div>
+                                        </div>
+                                    </div>
+
+      
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label section-subtitle" data-number="11">内容发布频率</label>
+                                                <select class="form-select" id="content_frequency">
+                                                    <option value="">请选择</option>
+                                                    <option value="日更">📅 日更</option>
+                                                    <option value="周更2-3次">📆 周更2-3次</option>
+                                                    <option value="周更1次">📆 周更1次</option>
+                                                    <option value="月更几次">📅 月更几次</option>
+                                                    <option value="不固定">❓ 不固定</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label section-subtitle" data-number="12">互动活跃度</label>
+                                                <select class="form-select" id="interaction_level">
+                                                    <option value="">请选择</option>
+                                                    <option value="很高">🔥 很高 (秒回)</option>
+                                                    <option value="较高">👍 较高 (小时内回复)</option>
+                                                    <option value="一般">⚖️ 一般 (24小时内回复)</option>
+                                                    <option value="较低">📱 较低 (回复慢)</option>
+                                                    <option value="很低">😴 很低 (基本不回)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 第三步：产品分析 -->
+                                <div class="form-section" data-section="3">
+                                    <div class="section-header">
+                                        <h4 class="section-title">· 产品分析</h4>
+                                        <p class="section-subtitle">深入了解同行的产品设计和变现模式</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">主要卖什么？</label>
+                                        <input type="text" class="form-control" id="product_main" placeholder="比如：理财课程、健身指导、美妆产品...">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="14">产品类型 <span class="text-muted">(可多选)</span></label>
+                                        <div class="product-types-grid">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="实物产品" id="product_physical">
+                                                <label class="form-check-label" for="product_physical">
+                                                    📦 实物产品
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="虚拟产品" id="product_digital">
+                                                <label class="form-check-label" for="product_digital">
+                                                    💻 虚拟产品
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="服务类" id="product_service">
+                                                <label class="form-check-label" for="product_service">
+                                                    🛎️ 服务类
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="知识付费" id="product_knowledge">
+                                                <label class="form-check-label" for="product_knowledge">
+                                                    📚 知识付费
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="软件工具" id="product_software">
+                                                <label class="form-check-label" for="product_software">
+                                                    🔧 软件工具
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="会员订阅" id="product_subscription">
+                                                <label class="form-check-label" for="product_subscription">
+                                                    💳 会员订阅
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="高客单定制" id="product_custom">
+                                                <label class="form-check-label" for="product_custom">
+                                                    💎 高客单定制
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="15">产品层级设计</label>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="card">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-title">🎯 引流产品</h6>
+                                                        <input type="text" class="form-control form-control-sm mb-2" id="product_entry" placeholder="体验课/小产品/福利">
+                                                        <input type="text" class="form-control form-control-sm mb-2" id="price_entry" placeholder="价格">
+                                                        <select class="form-select form-select-sm mb-2" id="delivery_method_entry">
+                                                            <option value="">交付方式</option>
+                                                            <option value="自动发货">🤖 自动发货</option>
+                                                            <option value="人工交付">👤 人工交付</option>
+                                                            <option value="预约服务">📅 预约服务</option>
+                                                            <option value="定制开发">⚙️ 定制开发</option>
+                                                        </select>
+                                                        <input type="text" class="form-control form-control-sm" id="delivery_period_entry" placeholder="交付周期">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-title">💰 主要产品</h6>
+                                                        <input type="text" class="form-control form-control-sm mb-2" id="product_mid" placeholder="系统课/标准服务">
+                                                        <input type="text" class="form-control form-control-sm mb-2" id="price_mid" placeholder="价格">
+                                                        <select class="form-select form-select-sm mb-2" id="delivery_method_mid">
+                                                            <option value="">交付方式</option>
+                                                            <option value="自动发货">🤖 自动发货</option>
+                                                            <option value="人工交付">👤 人工交付</option>
+                                                            <option value="预约服务">📅 预约服务</option>
+                                                            <option value="定制开发">⚙️ 定制开发</option>
+                                                        </select>
+                                                        <input type="text" class="form-control form-control-sm" id="delivery_period_mid" placeholder="交付周期">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-title">👑 高端产品</h6>
+                                                        <input type="text" class="form-control form-control-sm mb-2" id="product_high" placeholder="高端定制/1v1服务">
+                                                        <input type="text" class="form-control form-control-sm mb-2" id="price_high" placeholder="价格">
+                                                        <select class="form-select form-select-sm mb-2" id="delivery_method_high">
+                                                            <option value="">交付方式</option>
+                                                            <option value="人工交付">👤 人工交付</option>
+                                                            <option value="预约服务">📅 预约服务</option>
+                                                            <option value="定制开发">⚙️ 定制开发</option>
+                                                            <option value="专属服务">🎯 专属服务</option>
+                                                        </select>
+                                                        <input type="text" class="form-control form-control-sm" id="delivery_period_high" placeholder="交付周期">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="16">具体交付形式 <span class="text-muted">(可多选)</span></label>
+                                        <div class="delivery-methods-grid">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="自动发货" id="delivery_auto">
+                                                <label class="form-check-label" for="delivery_auto">
+                                                    🤖 自动发货
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="人工对接" id="delivery_manual">
+                                                <label class="form-check-label" for="delivery_manual">
+                                                    👨‍💼 人工对接
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="直播授课" id="delivery_live">
+                                                <label class="form-check-label" for="delivery_live">
+                                                    📺 直播授课
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="录播课程" id="delivery_recorded">
+                                                <label class="form-check-label" for="delivery_recorded">
+                                                    🎬 录播课程
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="1v1咨询" id="delivery_1v1">
+                                                <label class="form-check-label" for="delivery_1v1">
+                                                    💼 1v1咨询
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="训练营" id="delivery_camp">
+                                                <label class="form-check-label" for="delivery_camp">
+                                                    🏃 训练营
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="陪跑服务" id="delivery_coaching">
+                                                <label class="form-check-label" for="delivery_coaching">
+                                                    🏃‍♂️ 陪跑服务
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="社群服务" id="delivery_community">
+                                                <label class="form-check-label" for="delivery_community">
+                                                    👥 社群服务
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="线下服务" id="delivery_offline">
+                                                <label class="form-check-label" for="delivery_offline">
+                                                    🏪 线下服务
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="其他" id="delivery_other">
+                                                <label class="form-check-label" for="delivery_other">
+                                                    📌 其他
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="17">主要交付地点</label>
+                                        <select class="form-select" id="delivery_location">
+                                            <option value="">请选择</option>
+                                            <option value="平台内交付">🛒 平台内交付 (闲鱼/淘宝等)</option>
+                                            <option value="私域交付">💬 私域交付 (微信/企业微信)</option>
+                                            <option value="第三方平台">🌐 第三方平台 (知识星球/小鹅通等)</option>
+                                            <option value="混合交付">🔄 混合交付 (多平台结合)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="18">变现形式 <span class="text-muted">(可多选)</span></label>
+                                        <div class="monetization-types-grid">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="直销" id="monetization_direct">
+                                                <label class="form-check-label" for="monetization_direct">
+                                                    🎯 直销 (直接销售给终端用户)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="分销" id="monetization_distribution">
+                                                <label class="form-check-label" for="monetization_distribution">
+                                                    👥 分销 (通过代理/推广者销售)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="联盟营销" id="monetization_affiliate">
+                                                <label class="form-check-label" for="monetization_affiliate">
+                                                    🔗 联盟营销 (佣金分成模式)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="会员订阅" id="monetization_subscription">
+                                                <label class="form-check-label" for="monetization_subscription">
+                                                    💳 会员订阅 (定期收费)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="广告变现" id="monetization_ads">
+                                                <label class="form-check-label" for="monetization_ads">
+                                                    📢 广告变现 (流量广告收入)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="平台佣金" id="monetization_commission">
+                                                <label class="form-check-label" for="monetization_commission">
+                                                    🏪 平台佣金 (交易抽成)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="服务费" id="monetization_service">
+                                                <label class="form-check-label" for="monetization_service">
+                                                    🛎️ 服务费 (咨询/技术服务)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="加盟授权" id="monetization_franchise">
+                                                <label class="form-check-label" for="monetization_franchise">
+                                                    📜 加盟授权 (品牌/技术授权)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="股权合作" id="monetization_equity">
+                                                <label class="form-check-label" for="monetization_equity">
+                                                    📈 股权合作 (投资/分红)
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="19">核心卖点</label>
+                                        <textarea class="form-control" id="product_selling_point" rows="2" placeholder="最吸引人的点是什么？"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">定价策略</label>
+                                        <select class="form-select" id="pricing_strategy">
+                                            <option value="">请选择</option>
+                                            <option value="低价走量">💰 低价走量</option>
+                                            <option value="中等定价">⚖️ 中等定价</option>
+                                            <option value="高端定位">👑 高端定位</option>
+                                            <option value="分层定价">📊 分层定价</option>
+                                            <option value="订阅制">💳 订阅制</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">优惠活动</label>
+                                        <input type="text" class="form-control" id="promotion_info" placeholder="限时优惠/套餐折扣/满减活动等">
+                                    </div>
+                                </div>
+
+                                <!-- 第四步：运营分析 -->
+                                <div class="form-section" data-section="4">
+                                    <div class="section-header">
+                                        <h4 class="section-title">· 运营分析</h4>
+                                        <p class="section-subtitle">评估同行的运营能力和商业价值</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="20">看到的获客渠道 <span class="text-muted">(你发现的渠道)</span></label>
+                                        <select class="form-select" id="acquisition_channel">
+                                            <option value="">请选择看到的获客渠道</option>
+                                            <option value="自然推荐">🌱 自然推荐 (平台推荐/算法推荐)</option>
+                                            <option value="付费广告">💰 付费广告 (信息流/搜索广告)</option>
+                                            <option value="内容引流">📝 内容引流 (图文/视频/直播)</option>
+                                            <option value="私域转化">👥 私域转化 (朋友圈/社群转发)</option>
+                                            <option value="合作推广">🤝 合作推广 (KOL/达人/分销)</option>
+                                            <option value="口碑传播">🗣️ 口碑传播 (用户分享/评价)</option>
+                                            <option value="搜索发现">🔍 搜索发现 (主动搜索找到)</option>
+                                            <option value="商品引流">🛒 商品引流 (低价产品引流)</option>
+                                            <option value="不清楚">❓ 不清楚/无法判断</option>
+                                        </select>
+                                        <div class="form-text text-muted">
+                                            💡 填写你发现的获客渠道，不一定是对方的全部渠道
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="21">转化路径设计</label>
+                                        <select class="form-select" id="conversion_path_template">
+                                            <option value="">选择转化路径模板</option>
+                                            <option value="内容种草路径">📝 内容种草：内容吸引→互动咨询→私域转化→成交复购</option>
+                                            <option value="直播转化路径">📺 直播转化：直播引流→限时优惠→立即下单→售后维护</option>
+                                            <option value="搜索优化路径">🔍 搜索优化：搜索排名→主动咨询→专业解答→1v1成交</option>
+                                            <option value="社群运营路径">👥 社群运营：社群吸引→价值输出→信任建立→产品转化</option>
+                                            <option value="工具引流路径">🛠️ 工具引流：免费工具→体验产品→付费升级→持续服务</option>
+                                            <option value="电商引流路径">🛒 电商引流：低价产品→私域沉淀→基础交付→信任建立→高价产品→持续服务</option>
+                                            <option value="纯电商路径">🛍️ 纯电商：商品展示→咨询沟通→平台成交→发货交付→售后服务</option>
+                                        </select>
+                                        <textarea class="form-control mt-2" id="conversion_path" rows="2" placeholder="或者自定义描述转化路径..."></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="22">客户维护方式</label>
+                                        <select class="form-select" id="customer_maintenance">
+                                            <option value="">请选择</option>
+                                            <option value="社群运营">👥 社群运营</option>
+                                            <option value="1v1服务">💼 1v1服务</option>
+                                            <option value="自动回复">🤖 自动回复</option>
+                                            <option value="定期跟进">📅 定期跟进</option>
+                                            <option value="会员体系">💳 会员体系</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="23">售后服务内容 <span class="text-muted">(可多选)</span></label>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_qa">
+                                                    <label class="form-check-label" for="after_sales_qa">❓ 答疑解惑</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_update">
+                                                    <label class="form-check-label" for="after_sales_update">🔄 内容更新</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_community">
+                                                    <label class="form-check-label" for="after_sales_community">👥 社群陪伴</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_1v1">
+                                                    <label class="form-check-label" for="after_sales_1v1">💼 1v1指导</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_material">
+                                                    <label class="form-check-label" for="after_sales_material">📚 素材提供</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_tools">
+                                                    <label class="form-check-label" for="after_sales_tools">🛠️ 工具支持</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_certification">
+                                                    <label class="form-check-label" for="after_sales_certification">📜 认证证书</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_refund">
+                                                    <label class="form-check-label" for="after_sales_refund">💰 退款保障</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_lifetime">
+                                                    <label class="form-check-label" for="after_sales_lifetime">🌟 终身服务</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="after_sales_none">
+                                                    <label class="form-check-label" for="after_sales_none">❌ 无售后服务</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="24">售后服务备注</label>
+                                        <textarea class="form-control" id="after_sales_remarks" rows="2" placeholder="补充说明售后服务的特点、期限、注意事项等"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="25">客户维护策略</label>
+                                        <textarea class="form-control" id="customer_maintenance_strategy" rows="2" placeholder="如何维护客户关系？比如定期跟进、专属群、个性化服务等"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label section-subtitle" data-number="26">复购策略</label>
+                                        <textarea class="form-control" id="repurchase_strategy" rows="2" placeholder="如何让客户重复购买？"></textarea>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">营收水平</label>
+                                                <select class="form-select" id="revenue_estimate">
+                                                    <option value="">请选择</option>
+                                                    <option value="刚起步">🌱 刚起步 (可能还没盈利)</option>
+                                                    <option value="有收入">💵 有收入 (但不稳定)</option>
+                                                    <option value="稳定盈利">💰 稳定盈利 (月入过万)</option>
+                                                    <option value="很成功">🏆 很成功 (月入几万+)</option>
+                                                    <option value="不清楚">❓ 看不出来</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">信任度评分</label>
+                                                <select class="form-select" id="trust_score">
+                                                    <option value="">请选择</option>
+                                                    <option value="5-非常靠谱">⭐⭐⭐⭐⭐ 非常靠谱</option>
+                                                    <option value="4-比较靠谱">⭐⭐⭐⭐ 比较靠谱</option>
+                                                    <option value="3-一般般">⭐⭐⭐ 一般般</option>
+                                                    <option value="2-不太靠谱">⭐⭐ 不太靠谱</option>
+                                                    <option value="1-很不靠谱">⭐ 很不靠谱</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">参考价值评估</label>
+                                        <select class="form-select" id="reference_value">
+                                            <option value="">请选择</option>
+                                            <option value="非常有价值">🎯 非常有价值 (值得深入学习)</option>
+                                            <option value="较有价值">👍 较有价值 (可以借鉴)</option>
+                                            <option value="一般价值">⚖️ 一般价值 (参考即可)</option>
+                                            <option value="价值不大">📱 价值不大 (看看就行)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">值得学习的地方</label>
+                                        <textarea class="form-control" id="learning_points" rows="3" placeholder="这个同行有哪些做法值得学习？"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">需要改进的地方</label>
+                                        <textarea class="form-control" id="improvement_points" rows="2" placeholder="这个同行有哪些地方可以做得更好？"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- 导航按钮 -->
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="button" class="btn btn-secondary" id="prev-btn" style="display: none;">上一步</button>
+                                    <div class="ms-auto">
+                                        <button type="button" class="btn btn-primary" id="next-btn">下一步</button>
+                                        <button type="submit" class="btn btn-success" id="submit-btn" style="display: none;">提交调研</button>
+                                        <button type="button" class="btn btn-outline-success ms-2" id="quick-submit-btn">快速提交</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 列表页面 -->
+        <div id="list-page" class="tab-content" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <!-- 筛选区域 -->
+                    <div class="filter-section">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">平台筛选</label>
+                                <select class="form-select" id="filter-platform">
+                                    <option value="">全部平台</option>
+                                    <option value="小红书">小红书</option>
+                                    <option value="抖音">抖音</option>
+                                    <option value="知乎">知乎</option>
+                                    <option value="微信">微信</option>
+                                    <option value="B站">B站</option>
+                                    <option value="微博">微博</option>
+                                    <option value="闲鱼">闲鱼</option>
+                                    <option value="淘宝">淘宝</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">客单价筛选</label>
+                                <select class="form-select" id="filter-price">
+                                    <option value="">全部价格</option>
+                                    <option value="引流层">引流层 (9.9-99元)</option>
+                                    <option value="转化层">转化层 (199-999元)</option>
+                                    <option value="高客单层">高客单层 (1000+元)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">信任度筛选</label>
+                                <select class="form-select" id="filter-trust">
+                                    <option value="">全部</option>
+                                    <option value="5-非常靠谱">5星 - 非常靠谱</option>
+                                    <option value="4-比较靠谱">4星 - 比较靠谱</option>
+                                    <option value="3-一般般">3星 - 一般般</option>
+                                    <option value="2-不太靠谱">2星 - 不太靠谱</option>
+                                    <option value="1-很不靠谱">1星 - 很不靠谱</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">搜索</label>
+                                <input type="text" class="form-control" id="search-input" placeholder="搜索昵称、描述...">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-outline-primary export-btn" onclick="exportData('excel')">📊 导出Excel</button>
+                                <button class="btn btn-outline-success export-btn" onclick="exportData('csv')">📄 导出CSV</button>
+                                <button class="btn btn-outline-info export-btn" onclick="exportData('json')">💾 导出JSON</button>
+                                <button class="btn btn-outline-warning export-btn" onclick="exportAnalysisReport()">📈 导出分析报告</button>
+                                <button class="btn btn-outline-secondary export-btn" onclick="exportTemplate()">📋 导入模版</button>
+                                <button class="btn btn-outline-dark export-btn" onclick="document.getElementById('import-file').click()">📂 导入数据</button>
+                                <input type="file" id="import-file" accept=".xlsx,.xls,.csv,.json" style="display: none;" onchange="importData(event)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 数据表格 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">调研列表 <span class="badge bg-primary" id="total-count">0</span></h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="research-table">
+                                    <thead>
+                                        <tr>
+                                            <th>序号</th>
+                                            <th>调研日期</th>
+                                            <th>同行昵称</th>
+                                            <th>平台</th>
+                                            <th>主要产品</th>
+                                            <th>价格区间</th>
+                                            <th>信任度</th>
+                                            <th>参考价值</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="research-tbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分析页面 -->
+        <div id="analysis-page" class="tab-content" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <!-- 统计概览 -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <div class="stats-number" id="stat-total">0</div>
+                                <div>总调研数</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <div class="stats-number" id="stat-platforms">0</div>
+                                <div>涉及平台</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <div class="stats-number" id="stat-high-trust">0</div>
+                                <div>高信任度同行</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <div class="stats-number" id="stat-high-value">0</div>
+                                <div>高价值同行</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 平台分布 -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">平台分布</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="platform-chart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">产品类型分布</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="product-type-chart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 智能分析 -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">智能分析</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="analysis-card">
+                                                <h6>🎯 成功套路总结</h6>
+                                                <div id="success-patterns">
+                                                    <p class="text-muted">暂无数据，请先添加调研记录</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="analysis-card">
+                                                <h6>⚠️ 风险提醒</h6>
+                                                <div id="risk-alerts">
+                                                    <p class="text-muted">暂无数据，请先添加调研记录</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <div class="analysis-card">
+                                                <h6>💡 机会点分析</h6>
+                                                <div id="opportunities">
+                                                    <p class="text-muted">暂无数据，请先添加调研记录</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="analysis-card">
+                                                <h6>📊 行动建议</h6>
+                                                <div id="recommendations">
+                                                    <p class="text-muted">暂无数据，请先添加调研记录</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">同行详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分析报告模态框 -->
+    <div class="modal fade" id="analysisModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">智能分析报告</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="analysis-modal-body">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <script>
+        // 全局变量
+        let currentStep = 1;
+        let researchData = JSON.parse(localStorage.getItem('researchData')) || [];
+        let currentEditingId = null;
+
+        // 初始化
+        $(document).ready(function() {
+            initApp();
+            loadResearchData();
+            updateAnalysis();
+        });
+
+        function initApp() {
+            // 设置日期默认值
+            $('#research_date').val(new Date().toISOString().split('T')[0]);
+
+            // 标签页切换
+            $('.nav-link').click(function(e) {
+                e.preventDefault();
+                const tab = $(this).data('tab');
+                switchTab(tab);
+            });
+
+            // 平台选择 - 基础信息页面（下拉框多选）
+            $(document).on('change', '#research_platforms', function() {
+                console.log('下拉框选择变化，选中的值：', $('#research_platforms').val());
+                generateTrafficPathFromOrder();
+            });
+
+          // 平台选择 - 流量分析页面（多选）
+            $(document).on('click', '.form-section[data-section="2"] .platform-chip', function() {
+                $(this).toggleClass('selected');
+            });
+
+            // 流量形式选择
+            $('input[type="checkbox"][id^="traffic_"]').change(function() {
+                updateTrafficPath();
+            });
+
+            // 步骤导航
+            $('#next-btn').click(function() {
+                if (validateStep(currentStep)) {
+                    if (currentStep < 4) {
+                        showStep(currentStep + 1);
+                    }
+                }
+            });
+
+            $('#prev-btn').click(function() {
+                if (currentStep > 1) {
+                    showStep(currentStep - 1);
+                }
+            });
+
+            // 表单提交
+            $('#research-form').submit(function(e) {
+                e.preventDefault();
+                submitForm();
+            });
+
+            // 快速提交按钮
+            $('#quick-submit-btn').click(function() {
+                if (confirm('确定要快速提交吗？当前填写的内容将被保存。')) {
+                    submitForm();
+                }
+            });
+
+            // 筛选功能
+            $('#filter-platform, #filter-price, #filter-trust').change(function() {
+                filterData();
+            });
+
+            $('#search-input').keyup(function() {
+                filterData();
+            });
+
+            // 流量路径类型改变
+            $('#traffic_path_type').change(function() {
+                updateTrafficPath();
+            });
+
+            // 转化路径模板改变
+            $('#conversion_path_template').change(function() {
+                const template = $(this).val();
+                if (template) {
+                    const templatePaths = {
+                        '内容种草路径': '内容吸引→互动咨询→私域转化→成交复购',
+                        '直播转化路径': '直播引流→限时优惠→立即下单→售后维护',
+                        '搜索优化路径': '搜索排名→主动咨询→专业解答→1v1成交',
+                        '社群运营路径': '社群吸引→价值输出→信任建立→产品转化',
+                        '工具引流路径': '免费工具→体验产品→付费升级→持续服务',
+                        '电商引流路径': '低价产品→私域沉淀→基础交付→信任建立→高价产品→持续服务',
+                        '纯电商路径': '商品展示→咨询沟通→平台成交→发货交付→售后服务'
+                    };
+                    $('#conversion_path').val(templatePaths[template]);
+                }
+            });
+        }
+
+    
+        function switchTab(tab) {
+            $('.nav-link').removeClass('active');
+            $(`.nav-link[data-tab="${tab}"]`).addClass('active');
+            
+            $('.tab-content').hide();
+            $(`#${tab}-page`).show();
+            
+            if (tab === 'list') {
+                updateTable();
+            } else if (tab === 'analysis') {
+                updateAnalysis();
+            }
+        }
+
+        function showStep(step) {
+            currentStep = step;
+            $('.form-section').removeClass('active');
+            $(`.form-section[data-section="${step}"]`).addClass('active');
+            
+            $('.step').removeClass('active');
+            $(`.step[data-step="${step}"]`).addClass('active');
+            
+            if (step === 1) {
+                $('#prev-btn').hide();
+            } else {
+                $('#prev-btn').show();
+            }
+            
+            if (step === 4) {
+                $('#next-btn').hide();
+                $('#submit-btn').show();
+            } else {
+                $('#next-btn').show();
+                $('#submit-btn').hide();
+            }
+        }
+
+        function validateStep(step) {
+            let isValid = true;
+            
+            if (step === 1) {
+                if (!$('#research_date').val()) {
+                    alert('请选择调研日期');
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
+
+        function updateTrafficPath() {
+            const pathType = $('#traffic_path_type').val();
+            const selectedTraffic = [];
+            $('input[type="checkbox"][id^="traffic_"]:checked').each(function() {
+                const label = $(this).next('label').text();
+                selectedTraffic.push(label);
+            });
+            
+            let pathDisplay = '';
+            if (pathType) {
+                switch(pathType) {
+                    case '内容种草型':
+                        pathDisplay = '内容种草 → 互动咨询 → 私域转化';
+                        break;
+                    case '直播引流型':
+                        pathDisplay = '直播引流 → 限时优惠 → 立即成交';
+                        break;
+                    case '搜索优化型':
+                        pathDisplay = '搜索优化 → 主动咨询 → 1v1转化';
+                        break;
+                    case '社群运营型':
+                        pathDisplay = '社群运营 → 互动维护 → 私域转化';
+                        break;
+                    case '工具引流型':
+                        pathDisplay = '工具引流 → 体验产品 → 付费升级';
+                        break;
+                    case '电商引流型':
+                        pathDisplay = '电商商品引流 → 添加私域 → 基础交付 → 建立信任 → 高价转化 → 持续复购';
+                        break;
+                    case '纯电商型':
+                        pathDisplay = '商品展示 → 咨询沟通 → 平台成交 → 发货交付 → 售后服务';
+                        break;
+                }
+            }
+            
+            if (selectedTraffic.length > 0) {
+                pathDisplay += `<br><small>形式组合：${selectedTraffic.join(' + ')}</small>`;
+            }
+            
+            if (pathDisplay) {
+                $('#path-display').html(pathDisplay);
+            } else {
+                $('#path-display').html('<span class="text-muted">选择流量形式后会自动生成路径</span>');
+            }
+        }
+
+        function submitForm() {
+            const formData = collectFormData();
+            
+            if (currentEditingId) {
+                // 编辑模式
+                const index = researchData.findIndex(item => item.id === currentEditingId);
+                researchData[index] = formData;
+                currentEditingId = null;
+            } else {
+                // 新增模式
+                formData.id = Date.now();
+                researchData.push(formData);
+            }
+            
+            localStorage.setItem('researchData', JSON.stringify(researchData));
+            
+            // 显示分析结果
+            showAnalysisResult(formData);
+            
+            // 重置表单
+            resetForm();
+            
+            // 切换到列表页面
+            switchTab('list');
+        }
+
+        function collectFormData() {
+            // 基础信息页面的调研平台
+            const selectedPlatforms = [];
+            $('#research_platforms option:selected').each(function() {
+                selectedPlatforms.push($(this).val());
+            });
+            
+            // 流量分析页面的主要流量阵地
+            const mainPlatforms = [];
+            $('.form-section[data-section="2"] .platform-chip.selected').each(function() {
+                mainPlatforms.push($(this).data('platform'));
+            });
+            
+            const trafficForms = [];
+            $('input[type="checkbox"][id^="traffic_"]:checked').each(function() {
+                trafficForms.push($(this).val());
+            });
+            
+            const afterSalesServices = [];
+            $('input[type="checkbox"][id^="after_sales_"]:checked').each(function() {
+                afterSalesServices.push($(this).next('label').text());
+            });
+            
+            const productTypes = [];
+            $('input[type="checkbox"][id^="product_"]:checked').each(function() {
+                productTypes.push($(this).val());
+            });
+            
+            const monetizationMethods = [];
+            $('input[type="checkbox"][id^="monetization_"]:checked').each(function() {
+                monetizationMethods.push($(this).val());
+            });
+            
+            const deliveryMethods = [];
+            $('input[type="checkbox"][id^="delivery_"]:checked').each(function() {
+                deliveryMethods.push($(this).val());
+            });
+            
+            return {
+                id: currentEditingId || Date.now(),
+                research_date: $('#research_date').val(),
+                peer_name: $('#peer_name').val(),
+                platforms: selectedPlatforms,
+                peer_description: $('#peer_description').val(),
+                customer_type: $('#customer_type').val(),
+                operation_entity: $('#operation_entity').val(),
+                attraction_point: $('#attraction_point').val(),
+                contact_method: $('#contact_method').val(),
+                contact_added: $('#contact_added').val(),
+                main_platforms: mainPlatforms,
+                traffic_path_type: $('#traffic_path_type').val(),
+                traffic_forms: trafficForms,
+                custom_path: $('#custom_path').val(),
+                content_frequency: $('#content_frequency').val(),
+                interaction_level: $('#interaction_level').val(),
+                product_main: $('#product_main').val(),
+                product_types: productTypes,
+                monetization_methods: monetizationMethods,
+                product_entry: $('#product_entry').val(),
+                price_entry: $('#price_entry').val(),
+                delivery_method_entry: $('#delivery_method_entry').val(),
+                delivery_period_entry: $('#delivery_period_entry').val(),
+                product_mid: $('#product_mid').val(),
+                price_mid: $('#price_mid').val(),
+                delivery_method_mid: $('#delivery_method_mid').val(),
+                delivery_period_mid: $('#delivery_period_mid').val(),
+                product_high: $('#product_high').val(),
+                price_high: $('#price_high').val(),
+                delivery_method_high: $('#delivery_method_high').val(),
+                delivery_period_high: $('#delivery_period_high').val(),
+                delivery_location: $('#delivery_location').val(),
+                delivery_methods: deliveryMethods,
+                product_selling_point: $('#product_selling_point').val(),
+                pricing_strategy: $('#pricing_strategy').val(),
+                promotion_info: $('#promotion_info').val(),
+                seen_acquisition_channel: $('#seen_acquisition_channel').val(),
+                conversion_path: $('#conversion_path').val(),
+                customer_maintenance: $('#customer_maintenance').val(),
+                after_sales_services: afterSalesServices,
+                after_sales_content: $('#after_sales_content').val(),
+                customer_maintenance_strategy: $('#customer_maintenance_strategy').val(),
+                repurchase_strategy: $('#repurchase_strategy').val(),
+                revenue_estimate: $('#revenue_estimate').val(),
+                trust_score: $('#trust_score').val(),
+                reference_value: $('#reference_value').val(),
+                learning_points: $('#learning_points').val(),
+                improvement_points: $('#improvement_points').val(),
+                traffic_path: $('#generated_path').text(),
+                created_at: new Date().toISOString()
+            };
+        }
+
+        function resetForm() {
+            $('#research-form')[0].reset();
+            $('#research_date').val(new Date().toISOString().split('T')[0]);
+            $('#research_platforms option:selected').prop('selected', false); // 重置下拉框选择
+            $('.platform-chip').removeClass('selected');
+            $('.custom-platform-chip').remove(); // 清理自定义平台
+            $('input[type="checkbox"][id^="traffic_"]').prop('checked', false);
+            $('#product_types option').prop('selected', false);
+            $('#monetization_types option').prop('selected', false);
+            userSelectedPlatforms = []; // 重置用户选择顺序
+            generateTrafficPathFromOrder(); // 重置后重新生成路径
+            $('#delivery_methods option').prop('selected', false);
+            currentStep = 1;
+            showStep(1);
+            currentEditingId = null;
+        }
+
+        function showAnalysisResult(data) {
+            const analysis = generateAnalysis(data);
+            
+            let modalContent = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="text-center mb-3">
+                            <div class="score-circle" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                ${analysis.overallScore}
+                            </div>
+                            <h6>综合评分</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>🎯 套路分析</h5>
+                        <p><strong>流量健康度：</strong>${analysis.trafficHealth}/10</p>
+                        <p><strong>产品架构：</strong>${analysis.productStructure}/10</p>
+                        <p><strong>运营成熟度：</strong>${analysis.operationMaturity}/10</p>
+                        <p><strong>可复制性：</strong>${analysis.replicability}/10</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <h5>💡 核心发现</h5>
+                        <ul>
+                            ${analysis.findings.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>🌟 机会点</h5>
+                        <ul>
+                            ${analysis.opportunities.map(o => `<li>${o}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>⚠️ 风险提示</h5>
+                        <ul>
+                            ${analysis.risks.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h5>📝 行动建议</h5>
+                        <ol>
+                            ${analysis.recommendations.map(r => `<li>${r}</li>`).join('')}
+                        </ol>
+                    </div>
+                </div>
+            `;
+            
+            $('#analysis-modal-body').html(modalContent);
+            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+            modal.show();
+        }
+
+        function generateAnalysis(data) {
+            let overallScore = 0;
+            let trafficHealth = 5;
+            let productStructure = 5;
+            let operationMaturity = 5;
+            let marketPotential = 5;
+            
+            // 流量健康度评估 - 从流量思维角度
+            if (data.traffic_forms && data.traffic_forms.length > 2) {
+                trafficHealth += 2;
+            }
+            if (data.content_frequency === '日更' || data.content_frequency === '周更2-3次') {
+                trafficHealth += 2;
+            }
+            if (data.interaction_level === '很高' || data.interaction_level === '较高') {
+                trafficHealth += 1;
+            }
+            
+            // 产品架构评估 - 从产品思维角度  
+            const productLevels = [data.product_entry, data.product_mid, data.product_high].filter(Boolean).length;
+            if (productLevels >= 2) {
+                productStructure += 3;
+            }
+            if (data.pricing_strategy === '分层定价') {
+                productStructure += 2;
+            }
+            const deliveryMethods = [data.delivery_method_entry, data.delivery_method_mid, data.delivery_method_high].filter(Boolean).length;
+            if (deliveryMethods > 0) {
+                productStructure += 1;
+            }
+            
+            // 运营成熟度评估 - 从运营思维角度
+            if (data.seen_acquisition_channel && data.conversion_path) {
+                operationMaturity += 2;
+            }
+            if (data.customer_maintenance && data.repurchase_strategy) {
+                operationMaturity += 2;
+            }
+            if (data.trust_score && (data.trust_score.includes('4') || data.trust_score.includes('5'))) {
+                operationMaturity += 1;
+            }
+            
+            // 市场潜力评估 - 商业价值分析
+            if (data.revenue_estimate && (data.revenue_estimate.includes('月入1-3万') || data.revenue_estimate.includes('月入3万以上'))) {
+                marketPotential += 3;
+            }
+            if (data.after_sales_services && data.after_sales_services.length > 2) {
+                marketPotential += 2;
+            }
+            if (data.learning_points && data.learning_points.length > 50) {
+                marketPotential += 1;
+            }
+            
+            overallScore = Math.round((trafficHealth + productStructure + operationMaturity + marketPotential) / 4);
+            
+            // 生成分析结果
+            const findings = [];
+            const opportunities = [];
+            const risks = [];
+            const recommendations = [];
+            
+            // 流量思维分析
+            if (data.traffic_path_type === '内容种草型') {
+                findings.push('流量策略：采用内容种草模式，通过持续优质内容建立长期流量池');
+                opportunities.push('可借鉴点：内容资产具有累积效应，可形成稳定的被动流量来源');
+                recommendations.push('差异化思路：在同一赛道中寻找细分内容领域，避免直接竞争');
+            } else if (data.traffic_path_type === '直播引流型') {
+                findings.push('流量策略：采用直播引流模式，通过实时互动提高转化效率');
+                risks.push('风险点：对主播个人能力依赖性强，规模化难度大');
+                recommendations.push('可借鉴点：学习其直播间转化话术和互动节奏设计');
+            } else if (data.traffic_path_type === '电商引流型') {
+                findings.push('流量策略：采用电商引流模式，通过产品展示促进直接转化');
+                opportunities.push('可借鉴点：产品页面的视觉设计和卖点提炼值得学习');
+                recommendations.push('差异化思路：在同类产品中强化服务差异化，避免纯价格竞争');
+            }
+            
+            // 产品思维分析
+            if (productLevels >= 2) {
+                findings.push('产品策略：采用多层级产品架构，覆盖不同消费能力客群');
+                opportunities.push('可借鉴点：低门槛引流产品+高利润核心产品的组合模式');
+                recommendations.push('差异化思路：在某个价格带或产品形态上做深度，形成局部优势');
+            }
+            
+            // 产品类型分析
+            if (data.product_types && data.product_types.length > 0) {
+                const hasHighEnd = data.product_types.includes('高客单定制');
+                const hasDigital = data.product_types.includes('虚拟产品') || data.product_types.includes('知识付费') || data.product_types.includes('软件工具');
+                const hasService = data.product_types.includes('服务类');
+                
+                if (hasHighEnd) {
+                    findings.push('产品策略：包含高客单定制业务，具备深度服务能力');
+                    opportunities.push('可借鉴点：高客单客户的获取和服务模式');
+                    recommendations.push('差异化思路：在特定细分领域建立专家地位，支撑高客单定价');
+                }
+                
+                if (hasDigital) {
+                    findings.push('产品策略：以数字化产品为主，边际成本低，易于规模化');
+                    opportunities.push('可借鉴点：数字化产品的标准化和自动化交付');
+                    recommendations.push('差异化思路：在内容质量或用户体验上建立差异化');
+                }
+                
+                if (hasService) {
+                    findings.push('产品策略：提供人工服务，客户粘性较高');
+                    opportunities.push('可借鉴点：服务流程设计和质量控制');
+                    recommendations.push('差异化思路：在服务响应速度或专业性上建立优势');
+                }
+                
+                if (data.product_types.length > 2) {
+                    findings.push('产品策略：产品类型多元化，业务模式丰富');
+                    risks.push('风险点：产品线过多可能导致资源分散');
+                    recommendations.push('可借鉴点：不同产品类型之间的协同效应');
+                }
+            }
+            
+            if (deliveryMethods > 1) {
+                findings.push('交付策略：灵活的交付方式组合，提高客户购买便利性');
+                opportunities.push('可借鉴点：线上交付降低成本，线下交付提升体验的组合策略');
+            }
+            
+            // 运营思维分析
+            if (data.seen_acquisition_channel && data.conversion_path) {
+                findings.push('运营策略：从获客到转化的完整路径设计，运营思路清晰');
+                recommendations.push('可借鉴点：重点关注其转化路径中的关键节点设计');
+            }
+            
+            if (data.after_sales_services && data.after_sales_services.length > 0) {
+                findings.push('运营策略：重视售后服务体系，提高客户复购率和口碑传播');
+                opportunities.push('可借鉴点：售后服务不仅是成本中心，更是利润增长点');
+            }
+            
+            if (data.trust_score && (data.trust_score.includes('4') || data.trust_score.includes('5'))) {
+                findings.push('品牌建设：个人品牌或产品信任度较高，具有溢价能力');
+                opportunities.push('可借鉴点：信任度建设的方法和节奏值得学习');
+                recommendations.push('差异化思路：在专业度、服务态度或响应速度上建立差异化信任');
+            }
+            
+            // 商业价值分析
+            if (data.revenue_estimate && data.revenue_estimate.includes('月入1-3万')) {
+                findings.push('商业表现：营收达到稳定水平，商业模式已得到验证');
+                recommendations.push('重点关注：其获客成本和客户生命周期的平衡策略');
+            } else if (data.revenue_estimate && data.revenue_estimate.includes('月入3万以上')) {
+                findings.push('商业表现：营收表现优秀，已具备规模化基础');
+                opportunities.push('可借鉴点：团队协作和流程标准化的经验');
+                risks.push('风险点：可能面临更大竞争压力和模仿者挑战');
+            }
+            
+            // 客观分析和行动建议
+            if (trafficHealth >= 8) {
+                findings.push('流量优势：在流量获取和维护方面表现突出');
+                recommendations.push('行动建议：分析其流量来源构成，寻找可复制的流量渠道');
+            }
+            
+            if (productStructure >= 8) {
+                findings.push('产品优势：产品设计和定价策略成熟');
+                recommendations.push('行动建议：学习其产品迭代节奏和客户反馈机制');
+            }
+            
+            if (operationMaturity >= 8) {
+                findings.push('运营优势：运营体系完整，客户管理规范');
+                recommendations.push('行动建议：重点关注其客户分层运营策略');
+            }
+            
+            // 针对不同赛道的差异化建议
+            if (data.main_platforms && data.main_platforms.includes('小红书')) {
+                recommendations.push('小红书差异化：重视笔记质量和视觉呈现，建立专业人设');
+            }
+            if (data.main_platforms && data.main_platforms.includes('抖音')) {
+                recommendations.push('抖音差异化：在短视频内容形式或直播风格上寻找独特性');
+            }
+            if (data.main_platforms && data.main_platforms.includes('知乎')) {
+                recommendations.push('知乎差异化：在专业深度和逻辑性上建立竞争壁垒');
+            }
+            
+            // 针对客户群类型的分析
+            if (data.customer_type === 'To C') {
+                findings.push('客户群体：面向个人消费者，注重产品体验和情感连接');
+                opportunities.push('可借鉴点：个人消费者的复购率和口碑传播机制');
+                recommendations.push('差异化思路：在服务个性化或响应速度上建立优势');
+            } else if (data.customer_type === 'To B') {
+                findings.push('客户群体：面向企业客户，注重专业性和解决方案能力');
+                opportunities.push('可借鉴点：企业客户的长期合作模式和信任建立方式');
+                recommendations.push('差异化思路：在垂直行业的专业深度或定制化能力上做文章');
+            } else if (data.customer_type === '两者都有') {
+                findings.push('客户群体：同时服务个人和企业客户，业务模式多元化');
+                opportunities.push('可借鉴点：不同客户群体的产品设计和定价策略');
+                risks.push('风险点：资源分散，可能难以在某个领域做到极致');
+                recommendations.push('差异化思路：选择一个核心客户群深耕，其他作为补充');
+            }
+            
+            // 运营主体分析
+            if (data.operation_entity) {
+                if (data.operation_entity === '个人') {
+                    findings.push('运营模式：个人运营，灵活性强，成本低');
+                    opportunities.push('可借鉴点：个人品牌打造和时间管理方法');
+                    risks.push('风险点：规模化难度大，个人时间精力有限');
+                    recommendations.push('差异化思路：在专业深度和个人特色上建立优势');
+                } else if (data.operation_entity === '小团队') {
+                    findings.push('运营模式：小团队运营，具备一定分工和协作能力');
+                    opportunities.push('可借鉴点：小团队的效率管理和角色分配');
+                    recommendations.push('差异化思路：在团队专业组合和服务响应速度上建立优势');
+                } else if (data.operation_entity === '中型团队' || data.operation_entity === '大团队') {
+                    findings.push('运营模式：中大型团队运营，体系化程度高');
+                    opportunities.push('可借鉴点：团队管理和流程标准化经验');
+                    risks.push('风险点：管理成本高，决策链条长');
+                    recommendations.push('差异化思路：在资源整合和服务质量上建立优势');
+                } else if (data.operation_entity === '公司') {
+                    findings.push('运营模式：公司化运营，规范化和规模化程度高');
+                    opportunities.push('可借鉴点：企业管理和市场拓展策略');
+                    recommendations.push('差异化思路：在品牌实力和服务体系上建立优势');
+                }
+            }
+            
+            // 变现形式分析
+            if (data.monetization_methods && data.monetization_methods.length > 0) {
+                const hasDirect = data.monetization_methods.includes('直销');
+                const hasDistribution = data.monetization_methods.includes('分销');
+                const hasMembership = data.monetization_methods.includes('会员订阅');
+                const hasAffiliate = data.monetization_methods.includes('联盟营销');
+                
+                if (hasDirect) {
+                    findings.push('变现策略：以直销为主，利润空间较大，客户关系直接');
+                    opportunities.push('可借鉴点：直销的客户获取成本控制和转化流程优化');
+                }
+                
+                if (hasDistribution) {
+                    findings.push('变现策略：采用分销模式，具备规模化扩张潜力');
+                    opportunities.push('可借鉴点：分销体系的设计和代理管理机制');
+                    risks.push('风险点：分销模式可能影响品牌控制和客户体验');
+                    recommendations.push('差异化思路：在产品质量或服务支持上建立优势');
+                }
+                
+                if (hasMembership) {
+                    findings.push('变现策略：会员订阅模式，具备稳定的现金流');
+                    opportunities.push('可借鉴点：会员权益设计和续费率提升策略');
+                    recommendations.push('差异化思路：在会员专属内容或服务上做深度');
+                }
+                
+                if (hasAffiliate) {
+                    findings.push('变现策略：联盟营销模式，较低的获客风险');
+                    opportunities.push('可借鉴点：联盟伙伴的选择和佣金结构设计');
+                    recommendations.push('差异化思路：在转化漏斗和营销素材上优化');
+                }
+                
+                if (data.monetization_methods.length > 2) {
+                    findings.push('变现策略：变现渠道多元化，收入结构稳定');
+                    opportunities.push('可借鉴点：不同变现方式的协同效应');
+                    risks.push('风险点：管理复杂度增加，可能分散精力');
+                    recommendations.push('可借鉴点：资源分配和优先级管理经验');
+                }
+            }
+            
+            // 知识星球引流分析
+            if (data.traffic_forms && data.traffic_forms.includes('🪐 知识星球引流')) {
+                findings.push('流量策略：采用知识星球引流模式，适合知识付费和社群运营');
+                opportunities.push('可借鉴点：社群运营和知识沉淀的方法');
+                recommendations.push('差异化思路：在内容质量或互动氛围上建立特色');
+            }
+            
+            return {
+                overallScore,
+                trafficHealth,
+                productStructure,
+                operationMaturity,
+                marketPotential,
+                findings,
+                opportunities,
+                risks,
+                recommendations
+            };
+        }
+
+        function loadResearchData() {
+            updateTable();
+            updateStats();
+        }
+
+        function updateTable() {
+            const tbody = $('#research-tbody');
+            tbody.empty();
+            
+            let filteredData = filterData();
+            
+            filteredData.forEach((item, index) => {
+                const trustStars = item.trust_score ? item.trust_score.split('-')[0] : '0';
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.research_date}</td>
+                        <td>${item.peer_name || '未填写'}</td>
+                        <td>${item.platforms ? item.platforms.join(', ') : ''}</td>
+                        <td>${item.product_main || '未填写'}</td>
+                        <td>${getPriceRange(item)}</td>
+                        <td>${trustStars}星</td>
+                        <td>${item.reference_value || '未评估'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewDetail(${item.id})">查看</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="editItem(${item.id})">编辑</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${item.id})">删除</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+            
+            $('#total-count').text(filteredData.length);
+        }
+
+        function getPriceRange(item) {
+            const prices = [item.price_entry, item.price_mid, item.price_high].filter(Boolean);
+            if (prices.length === 0) return '未填写';
+            
+            const numPrices = prices.map(p => parseInt(p.replace(/[^0-9]/g, '')) || 0);
+            const min = Math.min(...numPrices);
+            const max = Math.max(...numPrices);
+            
+            return min === max ? `${min}元` : `${min}-${max}元`;
+        }
+
+        function filterData() {
+            let filtered = [...researchData];
+            
+            const platformFilter = $('#filter-platform').val();
+            const priceFilter = $('#filter-price').val();
+            const trustFilter = $('#filter-trust').val();
+            const searchTerm = $('#search-input').val().toLowerCase();
+            
+            if (platformFilter) {
+                filtered = filtered.filter(item => item.platforms && item.platforms.includes(platformFilter));
+            }
+            
+            if (priceFilter) {
+                filtered = filtered.filter(item => {
+                    switch(priceFilter) {
+                        case '引流层':
+                            return item.price_entry && parseInt(item.price_entry) < 100;
+                        case '转化层':
+                            return item.price_mid && parseInt(item.price_mid) >= 199 && parseInt(item.price_mid) <= 999;
+                        case '高客单层':
+                            return item.price_high && parseInt(item.price_high) >= 1000;
+                        default:
+                            return true;
+                    }
+                });
+            }
+            
+            if (trustFilter) {
+                filtered = filtered.filter(item => item.trust_score === trustFilter);
+            }
+            
+            if (searchTerm) {
+                filtered = filtered.filter(item => 
+                    (item.peer_name && item.peer_name.toLowerCase().includes(searchTerm)) ||
+                    (item.peer_description && item.peer_description.toLowerCase().includes(searchTerm)) ||
+                    (item.product_main && item.product_main.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            return filtered;
+        }
+
+        function updateStats() {
+            $('#stat-total').text(researchData.length);
+            
+            const platforms = new Set();
+            let highTrustCount = 0;
+            let highValueCount = 0;
+            
+            researchData.forEach(item => {
+                if (item.platforms) {
+                    item.platforms.forEach(p => platforms.add(p));
+                }
+                if (item.trust_score && (item.trust_score.includes('4') || item.trust_score.includes('5'))) {
+                    highTrustCount++;
+                }
+                if (item.reference_value && item.reference_value.includes('非常有价值')) {
+                    highValueCount++;
+                }
+            });
+            
+            $('#stat-platforms').text(platforms.size);
+            $('#stat-high-trust').text(highTrustCount);
+            $('#stat-high-value').text(highValueCount);
+        }
+
+        function updateAnalysis() {
+            updateStats();
+            updateCharts();
+            updateIntelligentAnalysis();
+        }
+
+        function updateCharts() {
+            // 平台分布图
+            const platformCount = {};
+            researchData.forEach(item => {
+                if (item.platforms) {
+                    item.platforms.forEach(platform => {
+                        platformCount[platform] = (platformCount[platform] || 0) + 1;
+                    });
+                }
+            });
+            
+            const platformCtx = document.getElementById('platform-chart').getContext('2d');
+            new Chart(platformCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(platformCount),
+                    datasets: [{
+                        data: Object.values(platformCount),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // 产品类型分布图
+            const productTypeCount = {};
+            researchData.forEach(item => {
+                if (item.product_types && Array.isArray(item.product_types)) {
+                    item.product_types.forEach(type => {
+                        productTypeCount[type] = (productTypeCount[type] || 0) + 1;
+                    });
+                }
+            });
+            
+            const productTypeCtx = document.getElementById('product-type-chart').getContext('2d');
+            new Chart(productTypeCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(productTypeCount),
+                    datasets: [{
+                        label: '数量',
+                        data: Object.values(productTypeCount),
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateIntelligentAnalysis() {
+            if (researchData.length === 0) {
+                $('#success-patterns').html('<p class="text-muted">暂无数据，请先添加调研记录</p>');
+                $('#risk-alerts').html('<p class="text-muted">暂无数据，请先添加调研记录</p>');
+                $('#opportunities').html('<p class="text-muted">暂无数据，请先添加调研记录</p>');
+                $('#recommendations').html('<p class="text-muted">暂无数据，请先添加调研记录</p>');
+                return;
+            }
+            
+            // 成功套路总结
+            const patterns = [];
+            const trafficTypes = {};
+            const productTypes = {};
+            
+            researchData.forEach(item => {
+                if (item.traffic_path_type) {
+                    trafficTypes[item.traffic_path_type] = (trafficTypes[item.traffic_path_type] || 0) + 1;
+                }
+                if (item.product_type) {
+                    productTypes[item.product_type] = (productTypes[item.product_type] || 0) + 1;
+                }
+            });
+            
+            const topTrafficType = Object.entries(trafficTypes).sort((a, b) => b[1] - a[1])[0];
+            const topProductType = Object.entries(productTypes).sort((a, b) => b[1] - a[1])[0];
+            
+            if (topTrafficType) {
+                patterns.push(`最有效的流量模式：<strong>${topTrafficType[0]}</strong> (${topTrafficType[1]}个同行在使用)`);
+            }
+            if (topProductType) {
+                patterns.push(`最受欢迎的产品类型：<strong>${topProductType[0]}</strong> (${topProductType[1]}个同行在做)`);
+            }
+            
+            // 风险提醒
+            const risks = [];
+            const lowTrustCount = researchData.filter(item => item.trust_score && item.trust_score.includes('1') || item.trust_score.includes('2')).length;
+            if (lowTrustCount > 0) {
+                risks.push(`发现 <strong>${lowTrustCount}</strong> 个低信任度同行，需要谨慎参考`);
+            }
+            
+            const noProductDesign = researchData.filter(item => !item.product_entry && !item.product_mid && !item.product_high).length;
+            if (noProductDesign > 0) {
+                risks.push(`<strong>${noProductDesign}</strong> 个同行缺乏产品层级设计，变现能力有限`);
+            }
+            
+            // 机会点
+            const opportunities = [];
+            const highTrustHighValue = researchData.filter(item => 
+                (item.trust_score && (item.trust_score.includes('4') || item.trust_score.includes('5'))) &&
+                (item.reference_value && item.reference_value.includes('非常有价值'))
+            );
+            
+            if (highTrustHighValue.length > 0) {
+                opportunities.push(`发现 <strong>${highTrustHighValue.length}</strong> 个高价值高信任度同行，值得深度学习`);
+            }
+            
+            const underusedPlatforms = ['知乎', 'B站', '微博'].filter(platform => {
+                const count = researchData.filter(item => item.platforms && item.platforms.includes(platform)).length;
+                return count < researchData.length * 0.2; // 使用率低于20%
+            });
+            
+            if (underusedPlatforms.length > 0) {
+                opportunities.push(`<strong>${underusedPlatforms.join(',')}</strong> 等平台竞争较小，可以考虑进入`);
+            }
+            
+            // 行动建议
+            const recommendations = [];
+            recommendations.push('优先学习高信任度同行的运营策略');
+            recommendations.push('完善产品层级设计，提升客户生命周期价值');
+            recommendations.push('多平台布局，降低单一平台风险');
+            
+            // 更新页面
+            $('#success-patterns').html(patterns.length > 0 ? patterns.map(p => `<p>• ${p}</p>`).join('') : '<p class="text-muted">暂无显著模式</p>');
+            $('#risk-alerts').html(risks.length > 0 ? risks.map(r => `<p>⚠️ ${r}</p>`).join('') : '<p class="text-muted">暂无明显风险</p>');
+            $('#opportunities').html(opportunities.length > 0 ? opportunities.map(o => `<p>💡 ${o}</p>`).join('') : '<p class="text-muted">继续观察中</p>');
+            $('#recommendations').html(recommendations.map(r => `<p>📋 ${r}</p>`).join(''));
+        }
+
+        function viewDetail(id) {
+            const item = researchData.find(d => d.id === id);
+            if (!item) return;
+            
+            let modalContent = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>基本信息</h6>
+                        <p><strong>调研日期：</strong>${item.research_date}</p>
+                        <p><strong>同行昵称：</strong>${item.peer_name || '未填写'}</p>
+                        <p><strong>平台：</strong>${item.platforms ? item.platforms.join(', ') : ''}</p>
+                        <p><strong>描述：</strong>${item.peer_description || '未填写'}</p>
+                        <p><strong>客户群体：</strong>${item.customer_type === 'To C' ? '面向个人消费者' : item.customer_type === 'To B' ? '面向企业客户' : item.customer_type === '两者都有' ? '两者都有' : '未填写'}</p>
+                        <p><strong>运营主体：</strong>${item.operation_entity === '个人' ? '个人运营' : item.operation_entity === '小团队' ? '小团队 (2-5人)' : item.operation_entity === '中型团队' ? '中型团队 (6-20人)' : item.operation_entity === '大团队' ? '大团队 (20人以上)' : item.operation_entity === '公司' ? '公司化运营' : '未填写'}</p>
+                        <p><strong>吸引点：</strong>${item.attraction_point || '未填写'}</p>
+                        <p><strong>联系方式：</strong>${item.contact_method || '未填写'}</p>
+                        <p><strong>是否继续：</strong>${item.contact_added || '未填写'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>流量分析</h6>
+                        <p><strong>主要阵地：</strong>${item.main_platforms ? item.main_platforms.join(', ') : '未填写'}</p>
+                        <p><strong>路径类型：</strong>${item.traffic_path_type || '未填写'}</p>
+                        <p><strong>流量形式：</strong>${item.traffic_forms ? item.traffic_forms.join(', ') : ''}</p>
+                        <p><strong>发布频率：</strong>${item.content_frequency || '未填写'}</p>
+                        <p><strong>互动活跃度：</strong>${item.interaction_level || '未填写'}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>产品分析</h6>
+                        <p><strong>主要产品：</strong>${item.product_main || '未填写'}</p>
+                        <p><strong>产品类型：</strong>${item.product_types ? item.product_types.join(', ') : '未填写'}</p>
+                        <p><strong>变现形式：</strong>${item.monetization_methods ? item.monetization_methods.join(', ') : '未填写'}</p>
+                        <p><strong>引流产品：</strong>${item.product_entry || '无'} (${item.price_entry || ''})</p>
+                        <p><strong>转化产品：</strong>${item.product_mid || '无'} (${item.price_mid || ''})</p>
+                        <p><strong>高客单产品：</strong>${item.product_high || '无'} (${item.price_high || ''})</p>
+                        <p><strong>交付方式：</strong>${item.delivery_method || '未填写'}</p>
+                        <p><strong>交付周期：</strong>${item.delivery_period || '未填写'}</p>
+                        <p><strong>交付地点：</strong>${item.delivery_location || '未填写'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>运营分析</h6>
+                        <p><strong>获客渠道：</strong>${item.acquisition_channel || '未填写'}</p>
+                        <p><strong>转化路径：</strong>${item.conversion_path || '未填写'}</p>
+                        <p><strong>客户维护：</strong>${item.customer_maintenance || '未填写'}</p>
+                        <p><strong>是否包含售后：</strong>${item.after_sales_service || '未填写'}</p>
+                        <p><strong>售后服务内容：</strong>${item.after_sales_content || '未填写'}</p>
+                        <p><strong>客户维护策略：</strong>${item.customer_maintenance_strategy || '未填写'}</p>
+                        <p><strong>复购策略：</strong>${item.repurchase_strategy || '未填写'}</p>
+                        <p><strong>营收预估：</strong>${item.revenue_estimate || '未填写'}</p>
+                        <p><strong>信任度：</strong>${item.trust_score || '未填写'}</p>
+                        <p><strong>参考价值：</strong>${item.reference_value || '未填写'}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>核心卖点</h6>
+                        <p>${item.product_selling_point || '未填写'}</p>
+                        <h6>定价策略</h6>
+                        <p>${item.pricing_strategy || '未填写'}</p>
+                        <h6>优惠活动</h6>
+                        <p>${item.promotion_info || '未填写'}</p>
+                        <h6>值得学习的地方</h6>
+                        <p>${item.learning_points || '未填写'}</p>
+                        <h6>需要改进的地方</h6>
+                        <p>${item.improvement_points || '未填写'}</p>
+                    </div>
+                </div>
+            `;
+            
+            $('#modal-body').html(modalContent);
+            const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+            modal.show();
+        }
+
+        function editItem(id) {
+            const item = researchData.find(d => d.id === id);
+            if (!item) return;
+            
+            currentEditingId = id;
+            
+            // 填充表单
+            $('#research_date').val(item.research_date);
+            $('#peer_name').val(item.peer_name || '');
+            $('#peer_description').val(item.peer_description || '');
+            $('#customer_type').val(item.customer_type || '');
+            $('#operation_entity').val(item.operation_entity || '');
+            $('#attraction_point').val(item.attraction_point || '');
+            $('#contact_method').val(item.contact_method || '');
+            $('#contact_added').val(item.contact_added || '');
+            $('#traffic_path_type').val(item.traffic_path_type || '');
+            $('#custom_path').val(item.custom_path || '');
+            $('#content_frequency').val(item.content_frequency || '');
+            $('#interaction_level').val(item.interaction_level || '');
+            $('#product_main').val(item.product_main || '');
+            $('#product_type').val(item.product_type || '');
+            $('#product_entry').val(item.product_entry || '');
+            $('#price_entry').val(item.price_entry || '');
+            $('#product_mid').val(item.product_mid || '');
+            $('#price_mid').val(item.price_mid || '');
+            $('#product_high').val(item.product_high || '');
+            $('#price_high').val(item.price_high || '');
+            $('#delivery_method_entry').val(item.delivery_method_entry || '');
+            $('#delivery_period_entry').val(item.delivery_period_entry || '');
+            $('#delivery_method_mid').val(item.delivery_method_mid || '');
+            $('#delivery_period_mid').val(item.delivery_period_mid || '');
+            $('#delivery_method_high').val(item.delivery_method_high || '');
+            $('#delivery_period_high').val(item.delivery_period_high || '');
+            $('#delivery_location').val(item.delivery_location || '');
+            $('#product_selling_point').val(item.product_selling_point || '');
+            $('#pricing_strategy').val(item.pricing_strategy || '');
+            $('#promotion_info').val(item.promotion_info || '');
+            $('#seen_acquisition_channel').val(item.seen_acquisition_channel || '');
+            $('#conversion_path').val(item.conversion_path || '');
+            $('#customer_maintenance').val(item.customer_maintenance || '');
+            $('#after_sales_service').val(item.after_sales_service || '');
+            $('#after_sales_content').val(item.after_sales_content || '');
+            $('#customer_maintenance_strategy').val(item.customer_maintenance_strategy || '');
+            $('#repurchase_strategy').val(item.repurchase_strategy || '');
+            $('#revenue_estimate').val(item.revenue_estimate || '');
+            $('#trust_score').val(item.trust_score || '');
+            $('#reference_value').val(item.reference_value || '');
+            $('#learning_points').val(item.learning_points || '');
+            $('#improvement_points').val(item.improvement_points || '');
+            
+            // 设置基础信息页面的调研平台选择
+            $('#research_platforms option:selected').prop('selected', false); // 清空下拉框选择
+            userSelectedPlatforms = []; // 重置用户选择顺序
+            if (item.platforms) {
+                item.platforms.forEach(platform => {
+                    // 设置下拉框选中状态
+                    $(`#research_platforms option[value="${platform}"]`).prop('selected', true);
+                });
+            }
+            
+            // 设置流量分析页面的主要流量阵地选择
+            $('.form-section[data-section="2"] .platform-chip').removeClass('selected');
+            if (item.main_platforms) {
+                item.main_platforms.forEach(platform => {
+                    $(`.form-section[data-section="2"] .platform-chip[data-platform="${platform}"]`).addClass('selected');
+                });
+            }
+            
+            // 设置流量形式选择
+            $('input[type="checkbox"][id^="traffic_"]').prop('checked', false);
+            if (item.traffic_forms) {
+                item.traffic_forms.forEach(form => {
+                    // 简单匹配，实际应该更精确
+                    $('input[type="checkbox"][id^="traffic_"]').each(function() {
+                        if ($(this).next('label').text().includes(form)) {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                });
+            }
+            
+            // 设置售后服务多选框
+            $('input[type="checkbox"][id^="after_sales_"]').prop('checked', false);
+            if (item.after_sales_services) {
+                item.after_sales_services.forEach(service => {
+                    $('input[type="checkbox"][id^="after_sales_"]').each(function() {
+                        if ($(this).next('label').text().includes(service)) {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                });
+            }
+            
+            // 设置产品类型多选
+            $('#product_types option').prop('selected', false);
+            if (item.product_types) {
+                item.product_types.forEach(type => {
+                    $(`#product_types option[value="${type}"]`).prop('selected', true);
+                });
+            }
+            
+            // 设置变现形式多选
+            $('#monetization_types option').prop('selected', false);
+            if (item.monetization_methods) {
+                item.monetization_methods.forEach(method => {
+                    $(`#monetization_types option[value="${method}"]`).prop('selected', true);
+                });
+            }
+            
+            // 设置具体交付形式多选
+            $('#delivery_methods option').prop('selected', false);
+            if (item.delivery_methods) {
+                item.delivery_methods.forEach(method => {
+                    $(`#delivery_methods option[value="${method}"]`).prop('selected', true);
+                });
+            }
+            
+            generateTrafficPathFromOrder();
+            updateTrafficPath();
+            
+            // 切换到表单页面
+            switchTab('form');
+        }
+
+        function deleteItem(id) {
+            if (confirm('确定要删除这条调研记录吗？')) {
+                researchData = researchData.filter(item => item.id !== id);
+                localStorage.setItem('researchData', JSON.stringify(researchData));
+                updateTable();
+                updateAnalysis();
+            }
+        }
+
+        function exportData(format) {
+            if (researchData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+            
+            const exportData = researchData.map(item => ({
+                '调研日期': item.research_date,
+                '同行昵称': item.peer_name || '',
+                '平台': item.platforms ? item.platforms.join(', ') : '',
+                '主要产品': item.product_main || '',
+                '客户群体': item.customer_type || '',
+                '运营主体': item.operation_entity || '',
+                '产品类型': item.product_types ? item.product_types.join(', ') : '',
+                '变现形式': item.monetization_methods ? item.monetization_methods.join(', ') : '',
+                '引流产品': item.product_entry || '',
+                '引流价格': item.price_entry || '',
+                '转化产品': item.product_mid || '',
+                '转化价格': item.price_mid || '',
+                '高客单产品': item.product_high || '',
+                '高客单价格': item.price_high || '',
+                '交付方式': item.delivery_method || '',
+                '交付周期': item.delivery_period || '',
+                '交付地点': item.delivery_location || '',
+                '核心卖点': item.product_selling_point || '',
+                '定价策略': item.pricing_strategy || '',
+                '优惠活动': item.promotion_info || '',
+                '主要流量阵地': item.main_platforms ? item.main_platforms.join(', ') : '',
+                '流量路径': item.traffic_path_type || '',
+        '流量形式': item.traffic_forms ? item.traffic_forms.join(', ') : '',
+        '发布频率': item.content_frequency || '',
+        '互动活跃度': item.interaction_level || '',
+        '获客渠道': item.acquisition_channel || '',
+        '转化路径': item.conversion_path || '',
+        '客户维护': item.customer_maintenance || '',
+        '是否包含售后': item.after_sales_service || '',
+        '售后服务内容': item.after_sales_content || '',
+        '客户维护策略': item.customer_maintenance_strategy || '',
+        '复购策略': item.repurchase_strategy || '',
+        '营收水平': item.revenue_estimate || '',
+        '信任度': item.trust_score || '',
+        '参考价值': item.reference_value || '',
+        '吸引点': item.attraction_point || '',
+        '联系方式': item.contact_method || '',
+        '是否继续': item.contact_added || '',
+        '描述': item.peer_description || '',
+        '学习点': item.learning_points || '',
+        '改进点': item.improvement_points || '',
+        '创建时间': item.created_at
+            }));
+            
+            if (format === 'excel') {
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, '同行调研数据');
+                XLSX.writeFile(wb, '同行调研数据.xlsx');
+            } else if (format === 'csv') {
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                const csv = XLSX.utils.sheet_to_csv(ws);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = '同行调研数据.csv';
+                link.click();
+            } else if (format === 'json') {
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = '同行调研数据.json';
+                link.click();
+            }
+        }
+
+        // 导入模版功能
+        function exportTemplate() {
+            const templateData = [{
+                '调研日期': '2025-01-01',
+                '同行昵称': '示例同行',
+                '平台': '小红书, 微信',
+                '主要产品': '示例产品',
+                '客户群体': '目标客户',
+                '运营主体': '个人/团队',
+                '产品类型': '虚拟产品, 实体产品',
+                '变现形式': '产品销售, 服务收费',
+                '引流产品': '入门产品',
+                '引流价格': '99',
+                '转化产品': '核心产品',
+                '转化价格': '999',
+                '高价值产品': '高端产品',
+                '高价值价格': '9999',
+                '流量路径': '小红书→私域（微信）',
+                '流量形式': 'UGC图文, 短视频',
+                '内容频率': '周更2-3次',
+                '互动程度': '较高',
+                '转化路径': '公域引流→私域转化→客户维护',
+                '客户维护': '微信社群, 1对1服务',
+                '是否包含售后': '是',
+                '售后服务内容': '技术支持, 咨询服务',
+                '客户维护策略': '定期回访, 专属服务',
+                '复购策略': '会员体系, 升级服务',
+                '营收水平': '月收入5-10万',
+                '信任度': '4-5分',
+                '参考价值': '非常有价值',
+                '吸引点': '内容质量高, 服务专业',
+                '联系方式': '微信: example123',
+                '是否继续': '已添加',
+                '描述': '这是一个示例数据，请根据实际情况修改',
+                '学习点': '优秀的运营策略',
+                '改进点': '可以优化的地方',
+                '创建时间': new Date().toISOString()
+            }];
+            
+            const ws = XLSX.utils.json_to_sheet(templateData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '同行调研模版');
+            XLSX.writeFile(wb, '同行调研数据导入模版.xlsx');
+            
+            alert('模版已下载，请按照模版格式填写数据后导入');
+        }
+
+        // 导入数据功能
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let data;
+                    const fileName = file.name.toLowerCase();
+                    
+                    if (fileName.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                    } else if (fileName.endsWith('.csv')) {
+                        const csv = e.target.result;
+                        const ws = XLSX.read(csv, { type: 'string' });
+                        data = XLSX.utils.sheet_to_json(ws.Sheets[ws.SheetNames[0]]);
+                    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                        data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    }
+                    
+                    if (data && Array.isArray(data)) {
+                        // 转换数据格式
+                        const importedData = data.map((item, index) => {
+                            const record = {
+                                id: Date.now() + index,
+                                research_date: item['调研日期'] || '',
+                                peer_name: item['同行昵称'] || '',
+                                platforms: item['平台'] ? item['平台'].split(',').map(p => p.trim()) : [],
+                                product_main: item['主要产品'] || '',
+                                customer_type: item['客户群体'] || '',
+                                operation_entity: item['运营主体'] || '',
+                                product_types: item['产品类型'] ? item['产品类型'].split(',').map(p => p.trim()) : [],
+                                monetization_methods: item['变现形式'] ? item['变现形式'].split(',').map(m => m.trim()) : [],
+                                product_entry: item['引流产品'] || '',
+                                price_entry: item['引流价格'] || '',
+                                product_mid: item['转化产品'] || '',
+                                price_mid: item['转化价格'] || '',
+                                product_high: item['高价值产品'] || '',
+                                price_high: item['高价值价格'] || '',
+                                traffic_path: item['流量路径'] || '',
+                                traffic_forms: item['流量形式'] ? item['流量形式'].split(',').map(f => f.trim()) : [],
+                                content_frequency: item['内容频率'] || '',
+                                interaction_level: item['互动程度'] || '',
+                                conversion_path: item['转化路径'] || '',
+                                customer_maintenance: item['客户维护'] ? item['客户维护'].split(',').map(m => m.trim()) : [],
+                                after_sales_service: item['是否包含售后'] || '',
+                                after_sales_content: item['售后服务内容'] || '',
+                                customer_maintenance_strategy: item['客户维护策略'] || '',
+                                repurchase_strategy: item['复购策略'] || '',
+                                revenue_estimate: item['营收水平'] || '',
+                                trust_score: item['信任度'] || '',
+                                reference_value: item['参考价值'] || '',
+                                attraction_point: item['吸引点'] || '',
+                                contact_method: item['联系方式'] || '',
+                                contact_added: item['是否继续'] || '',
+                                peer_description: item['描述'] || '',
+                                learning_points: item['学习点'] || '',
+                                improvement_points: item['改进点'] || '',
+                                created_at: item['创建时间'] || new Date().toISOString()
+                            };
+                            return record;
+                        });
+                        
+                        // 合并到现有数据
+                        researchData = [...researchData, ...importedData];
+                        localStorage.setItem('researchData', JSON.stringify(researchData));
+                        
+                        // 刷新页面显示
+                        loadTableData();
+                        updateStatistics();
+                        
+                        alert(`成功导入 ${importedData.length} 条数据！`);
+                    } else {
+                        alert('文件格式错误，请下载模版后按照格式填写');
+                    }
+                } catch (error) {
+                    console.error('导入错误:', error);
+                    alert('导入失败，请检查文件格式');
+                }
+            };
+            
+            if (file.name.toLowerCase().endsWith('.json')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsBinaryString(file);
+            }
+            
+            // 清空file input
+            event.target.value = '';
+        }
+
+        function exportAnalysisReport() {
+            if (researchData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+            
+            const reportContent = generateAnalysisReport();
+            
+            // 创建PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // 添加标题
+            doc.setFontSize(20);
+            doc.text('同行调研分析报告', 20, 30);
+            
+            // 添加生成时间
+            doc.setFontSize(12);
+            doc.text(`生成时间: ${new Date().toLocaleString()}`, 20, 45);
+            
+            // 添加统计概览
+            doc.setFontSize(16);
+            doc.text('统计概览', 20, 65);
+            doc.setFontSize(12);
+            doc.text(`总调研数: ${researchData.length}`, 20, 80);
+            doc.text(`涉及平台: ${new Set(researchData.flatMap(item => item.platforms || [])).size}`, 20, 90);
+            doc.text(`高信任度同行: ${researchData.filter(item => item.trust_score && (item.trust_score.includes('4') || item.trust_score.includes('5'))).length}`, 20, 100);
+            doc.text(`高价值同行: ${researchData.filter(item => item.reference_value && item.reference_value.includes('非常有价值')).length}`, 20, 110);
+            
+            // 添加平台分析
+            doc.setFontSize(16);
+            doc.text('平台分析', 20, 130);
+            doc.setFontSize(12);
+            
+            const platformCount = {};
+            researchData.forEach(item => {
+                if (item.platforms) {
+                    item.platforms.forEach(platform => {
+                        platformCount[platform] = (platformCount[platform] || 0) + 1;
+                    });
+                }
+            });
+            
+            let yPos = 145;
+            Object.entries(platformCount).sort((a, b) => b[1] - a[1]).forEach(([platform, count]) => {
+                doc.text(`${platform}: ${count}个同行 (${(count/researchData.length*100).toFixed(1)}%)`, 20, yPos);
+                yPos += 10;
+            });
+            
+            // 添加智能分析
+            doc.setFontSize(16);
+            doc.text('智能分析', 20, yPos + 20);
+            doc.setFontSize(12);
+            yPos += 35;
+            
+            const analysis = generateIntelligentAnalysis();
+            doc.text('成功套路:', 20, yPos);
+            yPos += 10;
+            analysis.patterns.forEach(pattern => {
+                const lines = doc.splitTextToSize(`• ${pattern}`, 170);
+                doc.text(lines, 20, yPos);
+                yPos += lines.length * 5 + 2;
+            });
+            
+            yPos += 10;
+            doc.text('风险提醒:', 20, yPos);
+            yPos += 10;
+            analysis.risks.forEach(risk => {
+                const lines = doc.splitTextToSize(`⚠️ ${risk}`, 170);
+                doc.text(lines, 20, yPos);
+                yPos += lines.length * 5 + 2;
+            });
+            
+            yPos += 10;
+            doc.text('机会点:', 20, yPos);
+            yPos += 10;
+            analysis.opportunities.forEach(opportunity => {
+                const lines = doc.splitTextToSize(`💡 ${opportunity}`, 170);
+                doc.text(lines, 20, yPos);
+                yPos += lines.length * 5 + 2;
+            });
+            
+            yPos += 10;
+            doc.text('行动建议:', 20, yPos);
+            yPos += 10;
+            analysis.recommendations.forEach(recommendation => {
+                const lines = doc.splitTextToSize(`📋 ${recommendation}`, 170);
+                doc.text(lines, 20, yPos);
+                yPos += lines.length * 5 + 2;
+            });
+            
+            doc.save('同行调研分析报告.pdf');
+        }
+
+        function generateAnalysisReport() {
+            const platformCount = {};
+            const productTypeCount = {};
+            let highTrustCount = 0;
+            let highValueCount = 0;
+            
+            researchData.forEach(item => {
+                if (item.platforms) {
+                    item.platforms.forEach(platform => {
+                        platformCount[platform] = (platformCount[platform] || 0) + 1;
+                    });
+                }
+                if (item.product_types && Array.isArray(item.product_types)) {
+                    item.product_types.forEach(type => {
+                        productTypeCount[type] = (productTypeCount[type] || 0) + 1;
+                    });
+                }
+                if (item.trust_score && (item.trust_score.includes('4') || item.trust_score.includes('5'))) {
+                    highTrustCount++;
+                }
+                if (item.reference_value && item.reference_value.includes('非常有价值')) {
+                    highValueCount++;
+                }
+            });
+            
+            return {
+                platformCount,
+                productTypeCount,
+                highTrustCount,
+                highValueCount,
+                totalResearch: researchData.length
+            };
+        }
+
+        function generateIntelligentAnalysis() {
+            const patterns = [];
+            const risks = [];
+            const opportunities = [];
+            const recommendations = [];
+            
+            // 核心数据统计
+            const totalPeers = researchData.length;
+            const highTrustPeers = researchData.filter(item => 
+                item.trust_score && (item.trust_score.includes('4') || item.trust_score.includes('5'))
+            ).length;
+            
+            // 平台分布分析
+            const platformStats = {};
+            researchData.forEach(item => {
+                if (item.platforms) {
+                    item.platforms.forEach(platform => {
+                        platformStats[platform] = (platformStats[platform] || 0) + 1;
+                    });
+                }
+            });
+            
+            const topPlatforms = Object.entries(platformStats)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            // 成功模式提炼
+            if (topPlatforms.length > 0) {
+                patterns.push(`主流平台：${topPlatforms.map(p => `${p[0]}(${p[1]}个)`).join('、')}`);
+            }
+            
+            const multiProductCount = researchData.filter(item => 
+                item.product_entry && item.product_mid
+            ).length;
+            if (multiProductCount > 0) {
+                patterns.push(`产品分层：${multiProductCount}个同行采用多产品策略`);
+            }
+            
+            // 风险识别
+            const lowTrustCount = researchData.filter(item => 
+                item.trust_score && (item.trust_score.includes('1') || item.trust_score.includes('2'))
+            ).length;
+            if (lowTrustCount > 0) {
+                risks.push(`低信任度同行：${lowTrustCount}个 (${(lowTrustCount/totalPeers*100).toFixed(1)}%)`);
+            }
+            
+            const singleProductCount = researchData.filter(item => 
+                !item.product_mid && !item.product_high
+            ).length;
+            if (singleProductCount > totalPeers * 0.6) {
+                risks.push(`${(singleProductCount/totalPeers*100).toFixed(1)}%同行缺乏产品体系`);
+            }
+            
+            // 机会点
+            if (highTrustPeers > 0) {
+                opportunities.push(`高价值目标：${highTrustPeers}个高信任度同行`);
+            }
+            
+            const nichePlatforms = Object.entries(platformStats)
+                .filter(([_, count]) => count < totalPeers * 0.15)
+                .map(([platform, _]) => platform);
+            
+            if (nichePlatforms.length > 0) {
+                opportunities.push(`蓝海平台：${nichePlatforms.join('、')}`);
+            }
+            
+            // 核心建议
+            recommendations.push('聚焦头部平台，学习高信任度同行');
+            recommendations.push('构建产品矩阵，避免单一依赖');
+            recommendations.push('关注细分平台，寻找差异化机会');
+            
+            return {
+                patterns,
+                risks,
+                opportunities,
+                recommendations
+            };
+        }
+
+        // 流量路径自动生成功能
+        function generateTrafficPath() {
+            const selectedPlatforms = [];
+            // 按照DOM顺序获取选中的平台，确保顺序正确
+            $('.platform-chip.selected').each(function(index) {
+                selectedPlatforms.push($(this).data('platform'));
+            });
+            
+            if (selectedPlatforms.length === 0) {
+                $('#generated_path').text('请先选择调研平台');
+                return;
+            }
+            
+            // 根据用户选择的顺序生成路径
+            let pathText = selectedPlatforms.join(' → ');
+            
+            $('#generated_path').text(pathText);
+        }
+        
+        // 记录用户点击顺序的平台数组
+        let userSelectedPlatforms = [];
+        
+        // 修改平台点击事件，记录用户的选择顺序（仅限第二页的流量阵地）
+        $(document).on('click', '.form-section[data-section="2"] .platform-chip', function() {
+            const platform = $(this).data('platform');
+            const index = userSelectedPlatforms.indexOf(platform);
+            
+            if ($(this).hasClass('selected')) {
+                // 如果是取消选择，从数组中移除
+                if (index > -1) {
+                    userSelectedPlatforms.splice(index, 1);
+                }
+            } else {
+                // 如果是选择，添加到数组末尾
+                if (index === -1) {
+                    userSelectedPlatforms.push(platform);
+                }
+            }
+            
+            // 使用记录的顺序生成路径
+            generateTrafficPathFromOrder();
+        });
+        
+        // 根据用户选择顺序生成路径
+        function generateTrafficPathFromOrder() {
+            // 获取基础页面下拉框选中的平台
+            const selectedPlatforms = [];
+            $('#research_platforms option:selected').each(function() {
+                selectedPlatforms.push($(this).val());
+            });
+            
+            console.log('generateTrafficPathFromOrder 被调用');
+            console.log('下拉框选中平台：', selectedPlatforms);
+            console.log('第二页选中平台：', userSelectedPlatforms);
+            
+            // 如果基础页面有选中平台，优先使用基础页面的选择
+            if (selectedPlatforms.length > 0) {
+                const pathText = selectedPlatforms.join(' → ');
+                $('#generated_path').text(pathText);
+                console.log('使用下拉框选择生成路径：', pathText);
+                return;
+            }
+            
+            // 如果基础页面没有选中，使用第二页流量阵地的选择
+            if (userSelectedPlatforms.length === 0) {
+                $('#generated_path').text('请先选择调研平台');
+                console.log('没有选择任何平台');
+                return;
+            }
+            
+            // 根据用户选择的顺序生成路径
+            let pathText = userSelectedPlatforms.join(' → ');
+            
+            $('#generated_path').text(pathText);
+            console.log('使用第二页选择生成路径：', pathText);
+        }
+        
+              
+        // 页面加载时生成路径
+        $(document).ready(function() {
+            generateTrafficPathFromOrder();
+        });
+    </script>
+</body>
+</html>
