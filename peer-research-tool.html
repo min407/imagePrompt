@@ -579,9 +579,46 @@
                 <a class="nav-link active" href="#" data-tab="form">添加调研</a>
                 <a class="nav-link" href="#" data-tab="list">调研列表</a>
                 <a class="nav-link" href="#" data-tab="analysis">汇总分析</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <span id="current-user-display">未登录</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="showUserLogin()">登录/切换用户</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="logoutUser()">退出登录</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
+
+    <!-- 用户登录模态框 -->
+    <div class="modal fade" id="userLoginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">用户登录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username-input" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username-input" placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">或选择现有用户</label>
+                        <select class="form-select" id="existing-users-select">
+                            <option value="">选择现有用户...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="loginUser()">登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 主要内容 -->
     <div class="container">
@@ -594,6 +631,16 @@
                             <h4 class="mb-0">添加同行调研</h4>
                         </div>
                         <div class="card-body">
+                            <!-- 未登录提示 -->
+                            <div id="form-login-required" class="text-center text-muted py-5" style="display: none;">
+                                <div class="mb-3">
+                                    <i class="bi bi-person-plus-fill" style="font-size: 3rem;"></i>
+                                </div>
+                                <h5>请先登录后再添加调研</h5>
+                                <p class="mb-3">登录后可以添加和管理您的调研数据</p>
+                                <button class="btn btn-primary" onclick="showUserLogin()">立即登录</button>
+                            </div>
+                            
                             <form id="research-form">
                                 <!-- 步骤指示器 -->
                                 <div class="step-indicator">
@@ -1544,8 +1591,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.11.5/js/dataTables.bootstrap5.min.js"></script>
@@ -1557,14 +1604,151 @@
     <script>
         // 全局变量
         let currentStep = 1;
-        let researchData = JSON.parse(localStorage.getItem('researchData')) || [];
+        let currentUser = localStorage.getItem('currentUser') || null;
+        let researchData = [];
         let currentEditingId = null;
+
+        // 用户管理功能
+        function showUserLogin() {
+            console.log('showUserLogin 函数被调用');
+            updateExistingUsersList();
+            
+            // 尝试显示模态框
+            try {
+                $('#userLoginModal').modal('show');
+                console.log('模态框已显示');
+            } catch (error) {
+                console.error('显示模态框时出错:', error);
+                // 如果Bootstrap方法不可用，手动显示
+                $('#userLoginModal').show();
+                $('body').append('<div class="modal-backdrop fade show"></div>');
+            }
+        }
+
+        function updateExistingUsersList() {
+            const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            const select = $('#existing-users-select');
+            select.empty();
+            select.append('<option value="">选择现有用户...</option>');
+            
+            allUsers.forEach(user => {
+                select.append(`<option value="${user}">${user}</option>`);
+            });
+        }
+
+        function loginUser() {
+            console.log('loginUser 函数被调用');
+            
+            const username = $('#username-input').val().trim();
+            const selectedUser = $('#existing-users-select').val();
+            
+            console.log('输入的用户名:', username);
+            console.log('选择的用户:', selectedUser);
+            
+            const finalUsername = username || selectedUser;
+            
+            if (!finalUsername) {
+                alert('请输入用户名或选择现有用户');
+                return;
+            }
+            
+            console.log('最终用户名:', finalUsername);
+            
+            // 保存当前用户
+            currentUser = finalUsername;
+            localStorage.setItem('currentUser', currentUser);
+            console.log('用户已保存到localStorage');
+            
+            // 更新用户列表
+            const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            if (!allUsers.includes(finalUsername)) {
+                allUsers.push(finalUsername);
+                localStorage.setItem('allUsers', JSON.stringify(allUsers));
+                console.log('用户已添加到用户列表');
+            }
+            
+            // 更新界面显示
+            $('#current-user-display').text(finalUsername);
+            console.log('界面显示已更新');
+            
+            // 尝试隐藏模态框
+            try {
+                $('#userLoginModal').modal('hide');
+                console.log('模态框已隐藏');
+            } catch (error) {
+                console.error('隐藏模态框时出错:', error);
+                // 如果Bootstrap方法不可用，手动隐藏
+                $('#userLoginModal').hide();
+                $('.modal-backdrop').remove();
+            }
+            
+            // 重新加载用户数据
+            loadResearchData();
+            updateAnalysis();
+            updateFormVisibility();
+            
+            // 清空输入框
+            $('#username-input').val('');
+            $('#existing-users-select').val('');
+            
+            console.log('登录流程完成');
+        }
+
+        function logoutUser() {
+            if (confirm('确定要退出登录吗？')) {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                $('#current-user-display').text('未登录');
+                researchData = [];
+                updateTable();
+                updateAnalysis();
+                updateFormVisibility();
+            }
+        }
+
+        function getCurrentUserStorageKey() {
+            return currentUser ? `researchData_${currentUser}` : 'researchData';
+        }
+
+        function updateFormVisibility() {
+            const formLoginRequired = $('#form-login-required');
+            const researchForm = $('#research-form');
+            
+            if (currentUser) {
+                formLoginRequired.hide();
+                researchForm.show();
+            } else {
+                formLoginRequired.show();
+                researchForm.hide();
+            }
+        }
 
         // 初始化
         $(document).ready(function() {
+            console.log('页面开始初始化');
+            console.log('当前用户:', currentUser);
+            
+            // 检查用户登录状态
+            if (currentUser) {
+                $('#current-user-display').text(currentUser);
+                console.log('用户已登录:', currentUser);
+            } else {
+                $('#current-user-display').text('未登录');
+                console.log('用户未登录');
+            }
+            
             initApp();
             loadResearchData();
             updateAnalysis();
+            updateFormVisibility();
+            
+            // 延迟显示登录界面，确保页面完全加载
+            if (!currentUser) {
+                setTimeout(() => {
+                    console.log('延迟显示登录界面');
+                    showUserLogin();
+                }, 500);
+            }
         });
 
         function initApp() {
@@ -1583,10 +1767,29 @@
                 console.log('下拉框选择变化，选中的值：', $('#research_platforms').val());
                 generateTrafficPathFromOrder();
             });
-
+            
+  
           // 平台选择 - 流量分析页面（多选）
             $(document).on('click', '.form-section[data-section="2"] .platform-chip', function() {
+                const platform = $(this).data('platform');
+                const index = userSelectedPlatforms.indexOf(platform);
+                
+                if ($(this).hasClass('selected')) {
+                    // 如果是取消选择，从数组中移除
+                    if (index > -1) {
+                        userSelectedPlatforms.splice(index, 1);
+                    }
+                } else {
+                    // 如果是选择，添加到数组末尾
+                    if (index === -1) {
+                        userSelectedPlatforms.push(platform);
+                    }
+                }
+                
                 $(this).toggleClass('selected');
+                
+                // 使用记录的顺序生成路径
+                generateTrafficPathFromOrder();
             });
 
             // 流量形式选择
@@ -1752,6 +1955,13 @@
         }
 
         function submitForm() {
+            // 检查用户是否登录
+            if (!currentUser) {
+                alert('请先登录后再添加或编辑数据');
+                showUserLogin();
+                return;
+            }
+            
             const formData = collectFormData();
             
             if (currentEditingId) {
@@ -1765,7 +1975,8 @@
                 researchData.push(formData);
             }
             
-            localStorage.setItem('researchData', JSON.stringify(researchData));
+            const storageKey = getCurrentUserStorageKey();
+            localStorage.setItem(storageKey, JSON.stringify(researchData));
             
             // 显示分析结果
             showAnalysisResult(formData);
@@ -2217,6 +2428,9 @@
         }
 
         function loadResearchData() {
+            // 从用户专属的存储中加载数据
+            const storageKey = getCurrentUserStorageKey();
+            researchData = JSON.parse(localStorage.getItem(storageKey)) || [];
             updateTable();
             updateStats();
         }
@@ -2224,6 +2438,23 @@
         function updateTable() {
             const tbody = $('#research-tbody');
             tbody.empty();
+            
+            // 如果用户未登录，显示提示信息
+            if (!currentUser) {
+                tbody.append(`
+                    <tr>
+                        <td colspan="12" class="text-center text-muted py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
+                            </div>
+                            <h5>请先登录查看数据</h5>
+                            <p class="mb-3">登录后可以查看和管理您的调研数据</p>
+                            <button class="btn btn-primary" onclick="showUserLogin()">立即登录</button>
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
             
             let filteredData = filterData();
             
@@ -2330,6 +2561,49 @@
         }
 
         function updateAnalysis() {
+            if (!currentUser) {
+                // 显示未登录状态的统计信息
+                $('#total-research').text('0');
+                $('#total-platforms').text('0');
+                $('#avg-trust').text('0.0');
+                $('#high-trust-count').text('0');
+                $('#high-value-count').text('0');
+                
+                // 清空图表
+                const platformCtx = document.getElementById('platform-chart').getContext('2d');
+                new Chart(platformCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['暂无数据'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: ['#e9ecef']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                
+                // 显示智能分析提示
+                $('#intelligent-analysis').html(`
+                    <div class="text-center text-muted py-4">
+                        <div class="mb-3">
+                            <i class="bi bi-graph-up" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5>请先登录查看分析</h5>
+                        <p>登录后可以查看详细的数据分析报告</p>
+                        <button class="btn btn-primary" onclick="showUserLogin()">立即登录</button>
+                    </div>
+                `);
+                return;
+            }
+            
             updateStats();
             updateCharts();
             updateIntelligentAnalysis();
@@ -2678,9 +2952,17 @@
         }
 
         function deleteItem(id) {
+            // 检查用户是否登录
+            if (!currentUser) {
+                alert('请先登录后再删除数据');
+                showUserLogin();
+                return;
+            }
+            
             if (confirm('确定要删除这条调研记录吗？')) {
                 researchData = researchData.filter(item => item.id !== id);
-                localStorage.setItem('researchData', JSON.stringify(researchData));
+                const storageKey = getCurrentUserStorageKey();
+            localStorage.setItem(storageKey, JSON.stringify(researchData));
                 updateTable();
                 updateAnalysis();
             }
@@ -2809,6 +3091,13 @@
 
         // 导入数据功能
         function importData(event) {
+            // 检查用户是否登录
+            if (!currentUser) {
+                alert('请先登录后再导入数据');
+                showUserLogin();
+                return;
+            }
+            
             const file = event.target.files[0];
             if (!file) return;
             
@@ -2874,7 +3163,8 @@
                         
                         // 合并到现有数据
                         researchData = [...researchData, ...importedData];
-                        localStorage.setItem('researchData', JSON.stringify(researchData));
+                        const storageKey = getCurrentUserStorageKey();
+            localStorage.setItem(storageKey, JSON.stringify(researchData));
                         
                         // 刷新页面显示
                         loadTableData();
@@ -3129,27 +3419,7 @@
         // 记录用户点击顺序的平台数组
         let userSelectedPlatforms = [];
         
-        // 修改平台点击事件，记录用户的选择顺序（仅限第二页的流量阵地）
-        $(document).on('click', '.form-section[data-section="2"] .platform-chip', function() {
-            const platform = $(this).data('platform');
-            const index = userSelectedPlatforms.indexOf(platform);
-            
-            if ($(this).hasClass('selected')) {
-                // 如果是取消选择，从数组中移除
-                if (index > -1) {
-                    userSelectedPlatforms.splice(index, 1);
-                }
-            } else {
-                // 如果是选择，添加到数组末尾
-                if (index === -1) {
-                    userSelectedPlatforms.push(platform);
-                }
-            }
-            
-            // 使用记录的顺序生成路径
-            generateTrafficPathFromOrder();
-        });
-        
+          
         // 根据用户选择顺序生成路径
         function generateTrafficPathFromOrder() {
             // 获取基础页面下拉框选中的平台
