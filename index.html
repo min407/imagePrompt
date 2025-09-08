@@ -592,6 +592,22 @@
         </div>
     </nav>
 
+    <!-- 登录提醒横幅 -->
+    <div id="login-reminder" class="alert alert-warning alert-dismissible fade show m-0" role="alert" style="border-radius: 0;">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <strong>👋 欢迎使用同行调研工具！</strong>
+                    请先登录以保存和管理您的调研数据。点击右上角的"未登录"按钮开始使用。
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-warning ms-3" onclick="showUserLogin()">
+                    立即登录
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- 用户登录模态框 -->
     <div class="modal fade" id="userLoginModal" tabindex="-1">
         <div class="modal-dialog">
@@ -606,14 +622,22 @@
                         <input type="text" class="form-control" id="username-input" placeholder="请输入用户名">
                     </div>
                     <div class="mb-3">
+                        <label for="password-input" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password-input" placeholder="请输入密码">
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">或选择现有用户</label>
                         <select class="form-select" id="existing-users-select">
                             <option value="">选择现有用户...</option>
                         </select>
                     </div>
+                    <div class="form-text">
+                        新用户请输入用户名和密码，或选择"快速登录"自动创建账户
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" onclick="quickLogin()">快速登录</button>
                     <button type="button" class="btn btn-primary" onclick="loginUser()">登录</button>
                 </div>
             </div>
@@ -1613,6 +1637,30 @@
             console.log('showUserLogin 函数被调用');
             updateExistingUsersList();
             
+            // 预填充快速登录建议
+            const suggestedUsername = `user_${Date.now()}`;
+            const suggestedPassword = Math.random().toString(36).slice(-8);
+            
+            $('#username-input').val(suggestedUsername);
+            $('#password-input').val(suggestedPassword);
+            
+            // 显示建议信息
+            const suggestionHtml = `
+                <div class="alert alert-info mt-3">
+                    <h6 class="alert-heading">💡 快速登录建议</h6>
+                    <p class="mb-2">我们为您生成了以下登录信息：</p>
+                    <p class="mb-1"><strong>用户名：</strong><code>${suggestedUsername}</code></p>
+                    <p class="mb-2"><strong>密码：</strong><code>${suggestedPassword}</code></p>
+                    <p class="mb-0 small text-muted">✅ 点击"快速登录"直接使用，或修改后点击"登录"</p>
+                </div>
+            `;
+            
+            // 移除之前的建议
+            $('.login-suggestion').remove();
+            
+            // 添加新的建议
+            $('#userLoginModal .modal-body').append(suggestionHtml);
+            
             // 尝试显示模态框
             try {
                 $('#userLoginModal').modal('show');
@@ -1640,15 +1688,32 @@
             console.log('loginUser 函数被调用');
             
             const username = $('#username-input').val().trim();
+            const password = $('#password-input').val().trim();
             const selectedUser = $('#existing-users-select').val();
             
             console.log('输入的用户名:', username);
+            console.log('输入的密码:', password);
             console.log('选择的用户:', selectedUser);
             
-            const finalUsername = username || selectedUser;
+            let finalUsername = username || selectedUser;
             
             if (!finalUsername) {
                 alert('请输入用户名或选择现有用户');
+                return;
+            }
+            
+            // 如果选择了现有用户，验证密码
+            if (selectedUser) {
+                const savedPassword = localStorage.getItem(`${selectedUser}_password`);
+                if (savedPassword && savedPassword !== password) {
+                    alert('密码错误，请重新输入');
+                    return;
+                }
+            }
+            
+            // 如果是新用户，需要设置密码
+            if (username && !password) {
+                alert('新用户请设置密码');
                 return;
             }
             
@@ -1657,7 +1722,11 @@
             // 保存当前用户
             currentUser = finalUsername;
             localStorage.setItem('currentUser', currentUser);
-            console.log('用户已保存到localStorage');
+            
+            // 如果是新用户，保存密码
+            if (username && password) {
+                localStorage.setItem(`${username}_password`, password);
+            }
             
             // 更新用户列表
             const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
@@ -1670,6 +1739,11 @@
             // 更新界面显示
             $('#current-user-display').text(finalUsername);
             console.log('界面显示已更新');
+            
+            // 隐藏登录提醒横幅
+            $('#login-reminder').fadeOut(() => {
+                $('#login-reminder').remove();
+            });
             
             // 尝试隐藏模态框
             try {
@@ -1689,9 +1763,71 @@
             
             // 清空输入框
             $('#username-input').val('');
+            $('#password-input').val('');
             $('#existing-users-select').val('');
             
             console.log('登录流程完成');
+            
+            // 自动跳转到添加调研页面
+            setTimeout(() => {
+                console.log('准备跳转到添加调研页面');
+                switchTab('form');
+                console.log('跳转完成');
+            }, 1000);
+        }
+
+        function quickLogin() {
+            console.log('quickLogin 被调用');
+            
+            // 使用预填充的用户名和密码
+            const username = $('#username-input').val().trim();
+            const password = $('#password-input').val().trim();
+            
+            if (!username || !password) {
+                alert('请先输入用户名和密码');
+                return;
+            }
+            
+            // 保存用户信息
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem(`${username}_password`, password);
+            
+            // 更新用户列表
+            const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            if (!allUsers.includes(username)) {
+                allUsers.push(username);
+                localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            }
+            
+            // 更新界面显示
+            $('#current-user-display').text(username);
+            
+            // 隐藏登录提醒横幅
+            $('#login-reminder').fadeOut(() => {
+                $('#login-reminder').remove();
+            });
+            
+            // 显示用户信息提示
+            showUserInfo(username, password);
+            
+            // 隐藏登录模态框
+            try {
+                $('#userLoginModal').modal('hide');
+            } catch (error) {
+                $('#userLoginModal').hide();
+                $('.modal-backdrop').remove();
+            }
+            
+            // 重新加载用户数据
+            loadResearchData();
+            updateAnalysis();
+            updateFormVisibility();
+            
+            // 自动跳转到添加调研页面
+            setTimeout(() => {
+                switchTab('form');
+            }, 2000);
         }
 
         function logoutUser() {
@@ -1723,6 +1859,68 @@
             }
         }
 
+        function createDefaultUser() {
+            // 生成默认用户名和密码
+            const defaultUsername = `user_${Date.now()}`;
+            const defaultPassword = Math.random().toString(36).slice(-8);
+            
+            console.log('创建默认用户:', defaultUsername);
+            
+            // 保存用户信息
+            currentUser = defaultUsername;
+            localStorage.setItem('currentUser', currentUser);
+            
+            // 更新用户列表
+            const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            if (!allUsers.includes(defaultUsername)) {
+                allUsers.push(defaultUsername);
+                localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            }
+            
+            // 保存用户密码信息（用于显示）
+            localStorage.setItem(`${defaultUsername}_password`, defaultPassword);
+            
+            // 更新界面显示
+            $('#current-user-display').text(defaultUsername);
+            
+            // 隐藏登录提醒横幅
+            $('#login-reminder').fadeOut(() => {
+                $('#login-reminder').remove();
+            });
+            
+            // 显示用户信息提示
+            showUserInfo(defaultUsername, defaultPassword);
+            
+            // 自动跳转到添加调研页面
+            setTimeout(() => {
+                switchTab('form');
+            }, 2000);
+        }
+
+        function showUserInfo(username, password) {
+            const userInfoHtml = `
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <h5 class="alert-heading">🎉 自动登录成功！</h5>
+                    <p><strong>用户名：</strong>${username}</p>
+                    <p><strong>密码：</strong><code>${password}</code></p>
+                    <hr>
+                    <p class="mb-0">⚠️ 请保存好您的用户名和密码，以便下次登录使用！</p>
+                    <p class="mb-0">📝 您现在可以开始添加调研数据了。</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // 在页面顶部插入提示
+            $('body').prepend(userInfoHtml);
+            
+            // 10秒后自动关闭提示
+            setTimeout(() => {
+                $('.alert').fadeOut(() => {
+                    $('.alert').remove();
+                });
+            }, 10000);
+        }
+
         // 初始化
         $(document).ready(function() {
             console.log('页面开始初始化');
@@ -1732,23 +1930,17 @@
             if (currentUser) {
                 $('#current-user-display').text(currentUser);
                 console.log('用户已登录:', currentUser);
+                // 隐藏登录提醒横幅
+                $('#login-reminder').hide();
             } else {
-                $('#current-user-display').text('未登录');
-                console.log('用户未登录');
+                // 显示登录提醒横幅
+                $('#login-reminder').show();
             }
             
             initApp();
             loadResearchData();
             updateAnalysis();
             updateFormVisibility();
-            
-            // 延迟显示登录界面，确保页面完全加载
-            if (!currentUser) {
-                setTimeout(() => {
-                    console.log('延迟显示登录界面');
-                    showUserLogin();
-                }, 500);
-            }
         });
 
         function initApp() {
@@ -1859,11 +2051,13 @@
 
     
         function switchTab(tab) {
+            console.log('switchTab 被调用，目标页面:', tab);
             $('.nav-link').removeClass('active');
             $(`.nav-link[data-tab="${tab}"]`).addClass('active');
             
             $('.tab-content').hide();
             $(`#${tab}-page`).show();
+            console.log('页面切换完成，当前显示:', $(`#${tab}-page`).length > 0 ? '成功' : '失败');
             
             if (tab === 'list') {
                 updateTable();
