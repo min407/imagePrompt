@@ -14,7 +14,11 @@ bun --version
 # 安装依赖
 bun install
 
-# 构建 Next.js 应用
+# 在 apps/nextjs 目录中构建 Next.js 应用
+cd apps/nextjs
 bun run build
+
+# 将 .next 目录复制到根目录（Vercel 需要）
+cp -r .next ../
 
 echo "构建完成！"

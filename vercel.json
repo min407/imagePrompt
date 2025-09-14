@@ -4,6 +4,17 @@
   },
   "buildCommand": "./vercel-build.sh",
   "installCommand": "echo 'skip'",
-  "outputDirectory": "apps/nextjs/.next",
-  "framework": "nextjs"
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "functions": {
+    "app/**/*.js": {
+      "runtime": "nodejs18.x"
+    },
+    "app/**/*.ts": {
+      "runtime": "nodejs18.x"
+    },
+    "app/**/*.tsx": {
+      "runtime": "nodejs18.x"
+    }
+  }
 }
