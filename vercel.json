@@ -2,8 +2,8 @@
   "github": {
     "silent": true
   },
-  "buildCommand": "bun install && cd apps/nextjs && bun run build",
-  "installCommand": "bun install",
+  "buildCommand": "npm install -g turbo && npm install && turbo build",
+  "installCommand": "npm install",
   "outputDirectory": "apps/nextjs/.next",
   "framework": "nextjs"
 }
