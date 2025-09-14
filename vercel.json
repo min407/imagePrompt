@@ -2,19 +2,8 @@
   "github": {
     "silent": true
   },
-  "buildCommand": "./vercel-build.sh",
-  "installCommand": "echo 'skip'",
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
   "outputDirectory": ".next",
-  "framework": "nextjs",
-  "functions": {
-    "app/**/*.js": {
-      "runtime": "nodejs18.x"
-    },
-    "app/**/*.ts": {
-      "runtime": "nodejs18.x"
-    },
-    "app/**/*.tsx": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  "framework": "nextjs"
 }
