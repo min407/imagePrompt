@@ -2,8 +2,8 @@
   "github": {
     "silent": true
   },
-  "buildCommand": "npm install -g turbo && npm install && turbo build",
-  "installCommand": "npm install",
+  "buildCommand": "./vercel-build.sh",
+  "installCommand": "echo 'skip'",
   "outputDirectory": "apps/nextjs/.next",
   "framework": "nextjs"
 }
